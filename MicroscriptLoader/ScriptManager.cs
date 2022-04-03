@@ -10,10 +10,10 @@ namespace MicroscriptLoader;
 public class ScriptManager : IDisposable
 {
     private readonly Configuration _configuration;
+    private readonly HashSet<string> _pendingLoads = new();
     private readonly DalamudPluginInterface _pluginInterface;
     private readonly string _scriptsPath;
     private readonly FileSystemWatcher _watcher;
-    private readonly HashSet<string> _pendingLoads = new();
     private bool _pendingResync;
 
     public ScriptManager(DalamudPluginInterface pluginInterface, Configuration configuration)

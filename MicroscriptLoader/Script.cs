@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -17,6 +18,7 @@ public class Script : IDisposable
     private Assembly? _assembly;
     private string _contents = string.Empty;
     private AssemblyLoadContext? _context;
+    private readonly Dictionary<string, MethodInfo?> _methods = new();
     private object? _scriptObj;
     private Type? _scriptType;
 
@@ -115,6 +117,7 @@ public class Script : IDisposable
         _context?.Unload();
         _context = null;
 
+        _methods.Clear();
         _scriptType = null;
         _scriptObj = null;
         _assembly = null;
@@ -122,6 +125,9 @@ public class Script : IDisposable
 
     public void Call(string method, params object[] values)
     {
-        if (_scriptType != null && _scriptObj != null) _scriptType.GetMethod(method)?.Invoke(_scriptObj!, values);
+        if (_scriptType == null || _scriptObj == null) return;
+
+        if (!_methods.ContainsKey(method)) _methods[method] = _scriptType.GetMethod(method);
+        _methods[method]?.Invoke(_scriptObj!, values);
     }
 }
