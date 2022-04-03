@@ -1,0 +1,12 @@
+{
+  "Author": "Philpax",
+  "Name": "Microscript Loader",
+  "Punchline": "for when you're too lazy to make your own plugin",
+  "Description": "Load single-file C# scripts for things that are too small to be plugins of their own. /pmsl to configure.",
+  "InternalName": "microscript_loader",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "c#",
+    "plugin"
+  ]
+}
