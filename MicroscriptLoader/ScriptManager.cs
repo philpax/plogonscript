@@ -13,8 +13,8 @@ public class ScriptManager : IDisposable
     private readonly DalamudPluginInterface _pluginInterface;
     private readonly string _scriptsPath;
     private readonly FileSystemWatcher _watcher;
-    private HashSet<string> _pendingLoads = new();
-    private bool _pendingResync = false;
+    private readonly HashSet<string> _pendingLoads = new();
+    private bool _pendingResync;
 
     public ScriptManager(DalamudPluginInterface pluginInterface, Configuration configuration)
     {
@@ -43,12 +43,10 @@ public class ScriptManager : IDisposable
         _watcher.Filter = "*.cs";
         _watcher.IncludeSubdirectories = false;
         _watcher.EnableRaisingEvents = true;
-        
+
         foreach (var (key, _) in _configuration.AutoloadedScripts.Where(p => p.Value))
-        {
             if (Scripts.TryGetValue(key, out var script))
                 script.Load();
-        }
     }
 
     public Dictionary<string, Script> Scripts { get; } = new();
@@ -106,10 +104,8 @@ public class ScriptManager : IDisposable
     public void Update(Framework framework)
     {
         foreach (var load in _pendingLoads)
-        {
             if (Scripts.TryGetValue(load, out var script))
                 script.LoadContents();
-        }
         _pendingLoads.Clear();
         if (_pendingResync)
         {

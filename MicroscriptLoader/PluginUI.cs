@@ -86,8 +86,8 @@ internal class PluginUI : IDisposable
                         if (ImGui.MenuItem("Save", "CTRL+S"))
                             script.SaveContents();
 
-                        bool originalAutoload = _configuration.AutoloadedScripts.GetValueOrDefault(script.Name);
-                        bool imguiAutoload = originalAutoload;
+                        var originalAutoload = _configuration.AutoloadedScripts.GetValueOrDefault(script.Name);
+                        var imguiAutoload = originalAutoload;
                         ImGui.Checkbox("Autoload", ref imguiAutoload);
                         if (imguiAutoload != originalAutoload)
                         {
@@ -123,6 +123,7 @@ internal class PluginUI : IDisposable
                 ImGui.EndChild();
             }
         }
+
         ImGui.End();
     }
 }

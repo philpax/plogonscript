@@ -1,9 +1,8 @@
 using Dalamud.Logging;
-using Dalamud.Plugin;
 
 class Script
 {
-    public void Load(DalamudPluginInterface pluginInterface)
+    public void Load()
     {
         PluginLog.Information("Hello, world!");
     }

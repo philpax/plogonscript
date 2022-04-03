@@ -17,8 +17,8 @@ public class Script : IDisposable
     private Assembly? _assembly;
     private string _contents = string.Empty;
     private AssemblyLoadContext? _context;
-    private Type? _scriptType;
     private object? _scriptObj;
+    private Type? _scriptType;
 
     public Script(string scriptPath, DalamudPluginInterface pluginInterface, Configuration configuration)
     {
@@ -99,7 +99,7 @@ public class Script : IDisposable
                 _pluginInterface.Inject(_scriptObj!);
             }
 
-            Call("Load", _pluginInterface);
+            Call("Load");
         }
         catch
         {
@@ -119,12 +119,9 @@ public class Script : IDisposable
         _scriptObj = null;
         _assembly = null;
     }
-    
+
     public void Call(string method, params object[] values)
     {
-        if (_scriptType != null && _scriptObj != null)
-        {
-            _scriptType.GetMethod(method)?.Invoke(_scriptObj!, values);
-        }
+        if (_scriptType != null && _scriptObj != null) _scriptType.GetMethod(method)?.Invoke(_scriptObj!, values);
     }
 }

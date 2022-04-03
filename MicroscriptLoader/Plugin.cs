@@ -7,8 +7,8 @@ namespace MicroscriptLoader;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    private readonly Framework _framework;
     private const string commandName = "/pmsl";
+    private readonly Framework _framework;
 
     public Plugin(
         [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
@@ -36,11 +36,6 @@ public sealed class Plugin : IDalamudPlugin
         _framework.Update += Update;
     }
 
-    private void Update(Framework framework)
-    {
-        ScriptManager.Update(framework);
-    }
-
     private DalamudPluginInterface PluginInterface { get; }
     private CommandManager CommandManager { get; }
 
@@ -58,6 +53,11 @@ public sealed class Plugin : IDalamudPlugin
         ScriptManager.Dispose();
         PluginUi.Dispose();
         CommandManager.RemoveHandler(commandName);
+    }
+
+    private void Update(Framework framework)
+    {
+        ScriptManager.Update(framework);
     }
 
     private void OnCommand(string command, string args)
