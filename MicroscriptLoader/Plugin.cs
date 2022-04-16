@@ -62,7 +62,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnCommand(string command, string args)
     {
-        PluginUi.SettingsVisible = true;
+        PluginUi.PrimaryWindow.IsOpen = true;
     }
 
     private void DrawUI()
@@ -73,6 +73,6 @@ public sealed class Plugin : IDalamudPlugin
 
     private void DrawConfigUI()
     {
-        PluginUi.SettingsVisible = true;
+        PluginUi.PrimaryWindow.IsOpen = true;
     }
 }

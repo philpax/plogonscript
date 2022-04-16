@@ -17,7 +17,6 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <OutputPath>$(AppData)\XIVLauncher\devPlugins\MicroscriptLoader\</OutputPath>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
 
@@ -25,7 +24,7 @@
         <Content Include="..\Data\microscript_loader.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <Content LinkBase="scripts\" CopyToOutputDirectory="Always" Include="..\Data\scripts\**\*.cs"/>
+        <Content LinkBase="scripts\" CopyToOutputDirectory="Always" Include="..\Data\scripts\**\*.cs" />
     </ItemGroup>
 
     <PropertyGroup>
@@ -33,8 +32,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DalamudPackager" Version="2.1.5"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0"/>
+        <PackageReference Include="DalamudPackager" Version="2.1.5" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" />
         <Reference Include="FFXIVClientStructs">
             <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
             <Private>false</Private>
