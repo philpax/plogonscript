@@ -10,7 +10,7 @@ using Jint;
 using Jint.Native;
 using Jint.Runtime.Interop;
 
-namespace MicroscriptLoader;
+namespace PlogonScript;
 
 public class Script : IDisposable
 {

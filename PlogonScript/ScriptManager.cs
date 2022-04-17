@@ -6,7 +6,7 @@ using System.Reflection;
 using Dalamud.Game;
 using Dalamud.Plugin;
 
-namespace MicroscriptLoader;
+namespace PlogonScript;
 
 public class ScriptManager : IDisposable
 {

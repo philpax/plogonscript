@@ -4,15 +4,14 @@ using System.Numerics;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
-namespace MicroscriptLoader;
+namespace PlogonScript;
 
 internal class PrimaryWindow : Window
 {
     private readonly ScriptManager _scriptManager;
     private readonly Configuration _configuration;
 
-    public PrimaryWindow(ScriptManager scriptManager, Configuration configuration) : base(
-        "Microscript Loader Settings")
+    public PrimaryWindow(ScriptManager scriptManager, Configuration configuration) : base("PlogonScript")
     {
         _scriptManager = scriptManager;
         _configuration = configuration;

@@ -1,0 +1,12 @@
+{
+  "Author": "Philpax",
+  "Name": "PlogonScript",
+  "Punchline": "for when you're too lazy to make your own plugin",
+  "Description": "Load single-file JavaScript scripts for things that are too small to be plugins of their own. /pps to configure.",
+  "InternalName": "plogonscript",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "javascript",
+    "plugin"
+  ]
+}

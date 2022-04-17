@@ -4,9 +4,9 @@
         <Authors>Philpax</Authors>
         <Company></Company>
         <Version>1.0.0.0</Version>
-        <Description>Load single-file C# scripts for things that are too small to be plugins of their own.</Description>
+        <Description>Load single-file JavaScript scripts for things that are too small to be plugins of their own.</Description>
         <Copyright></Copyright>
-        <PackageProjectUrl>https://github.com/philpax/MicroscriptLoader</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/philpax/PlogonScript</PackageProjectUrl>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -21,7 +21,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Include="..\Data\microscript_loader.json">
+        <Content Include="..\Data\plogonscript.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
         <Content LinkBase="scripts\" CopyToOutputDirectory="Always" Include="..\Data\scripts\**\*.js" />

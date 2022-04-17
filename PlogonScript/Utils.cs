@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 // ReSharper disable InconsistentNaming
 // ReSharper disable IdentifierTypo
 
-namespace MicroscriptLoader;
+namespace PlogonScript;
 
 // Thanks to https://stackoverflow.com/a/65886646/4314212
 public class Utils

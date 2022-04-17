@@ -2,13 +2,13 @@
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
-namespace MicroscriptLoader;
+namespace PlogonScript;
 
 internal class PluginUI : IDisposable
 {
     private readonly Configuration _configuration;
     private readonly ScriptManager _scriptManager;
-    private readonly WindowSystem _windowSystem = new("MicroscriptLoader.Windows");
+    private readonly WindowSystem _windowSystem = new("PlogonScript.Windows");
 
     public PrimaryWindow PrimaryWindow { get; }
 

@@ -3,11 +3,11 @@ using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 
-namespace MicroscriptLoader;
+namespace PlogonScript;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    private const string commandName = "/pmsl";
+    private const string commandName = "/pps";
     private readonly Framework _framework;
 
     public Plugin(
@@ -27,7 +27,7 @@ public sealed class Plugin : IDalamudPlugin
 
         CommandManager.AddHandler(commandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Open the configuration for Microscript Loader."
+            HelpMessage = "Open the configuration for PlogonScript."
         });
 
         PluginInterface.UiBuilder.Draw += DrawUI;
@@ -43,7 +43,7 @@ public sealed class Plugin : IDalamudPlugin
     private PluginUI PluginUi { get; }
 
     private ScriptManager ScriptManager { get; }
-    public string Name => "Microscript Loader";
+    public string Name => "PlogonScript";
 
     public void Dispose()
     {

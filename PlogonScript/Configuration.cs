@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Dalamud.Configuration;
 using Dalamud.Plugin;
 
-namespace MicroscriptLoader;
+namespace PlogonScript;
 
 [Serializable]
 public class Configuration : IPluginConfiguration
