@@ -135,16 +135,16 @@ public class Script : IDisposable
 
     public void Unload(bool disableAutoload)
     {
-        if (!Loaded) return;
-
-        Call("onUnload");
-        _engine = null;
-
         if (disableAutoload)
         {
             _configuration.AutoloadedScripts[Filename] = false;
             _configuration.Save();
         }
+        
+        if (!Loaded) return;
+
+        Call("onUnload");
+        _engine = null;
     }
 
     public void Call(string methodName, Dictionary<string, JsValue>? arguments = null)
