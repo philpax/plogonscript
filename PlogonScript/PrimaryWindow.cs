@@ -101,24 +101,15 @@ internal class PrimaryWindow : Window
                 if (ImGui.MenuItem("Save", SelectedScript.Metadata.Valid))
                     SelectedScript.SaveContents();
 
-                var originalAutoload = _configuration.AutoloadedScripts.GetValueOrDefault(SelectedScript.Filename);
-                var imguiAutoload = originalAutoload;
-                ImGui.Checkbox("Autoload", ref imguiAutoload);
-                if (imguiAutoload != originalAutoload)
-                {
-                    _configuration.AutoloadedScripts[SelectedScript.Filename] = imguiAutoload;
-                    _configuration.Save();
-                }
-
                 if (SelectedScript.Loaded)
                 {
                     if (ImGui.MenuItem("Reload"))
                     {
-                        SelectedScript.Unload();
+                        SelectedScript.Unload(false);
                         SelectedScript.Load();
                     }
 
-                    if (ImGui.MenuItem("Unload")) SelectedScript.Unload();
+                    if (ImGui.MenuItem("Unload")) SelectedScript.Unload(true);
                 }
                 else
                 {

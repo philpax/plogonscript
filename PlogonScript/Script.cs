@@ -59,7 +59,7 @@ public class Script : IDisposable
 
     public void Dispose()
     {
-        Unload();
+        Unload(false);
         GC.SuppressFinalize(this);
     }
 
@@ -122,20 +122,29 @@ public class Script : IDisposable
 
             _engine.Execute(_contents);
             Call("onLoad");
+
+            _configuration.AutoloadedScripts[Filename] = true;
+            _configuration.Save();
         }
         catch
         {
-            Unload();
+            Unload(true);
             throw;
         }
     }
 
-    public void Unload()
+    public void Unload(bool disableAutoload)
     {
         if (!Loaded) return;
 
         Call("onUnload");
         _engine = null;
+
+        if (disableAutoload)
+        {
+            _configuration.AutoloadedScripts[Filename] = false;
+            _configuration.Save();
+        }
     }
 
     public void Call(string methodName, Dictionary<string, JsValue>? arguments = null)
