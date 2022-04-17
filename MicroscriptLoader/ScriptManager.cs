@@ -40,7 +40,7 @@ public class ScriptManager : IDisposable
         _watcher.Deleted += (_, e) => HandleFilesystemEvent(e);
         _watcher.Renamed += (_, e) => HandleFilesystemEvent(e);
 
-        _watcher.Filter = "*.cs";
+        _watcher.Filter = "*.js";
         _watcher.IncludeSubdirectories = false;
         _watcher.EnableRaisingEvents = true;
 
@@ -69,7 +69,7 @@ public class ScriptManager : IDisposable
 
     private void Resync()
     {
-        var scriptsOnDisk = Directory.EnumerateFiles(_scriptsPath, "*.cs").Select(a => Path.GetFileName(a)).ToHashSet();
+        var scriptsOnDisk = Directory.EnumerateFiles(_scriptsPath, "*.js").Select(a => Path.GetFileName(a)).ToHashSet();
         var scriptsHere = Scripts.Keys.ToHashSet();
 
         var scriptsToAdd = new HashSet<string>(scriptsOnDisk.AsEnumerable());
@@ -98,7 +98,7 @@ public class ScriptManager : IDisposable
     public void Draw()
     {
         foreach (var script in Scripts.Values)
-            script.Call("Draw");
+            script.Call("onDraw");
     }
 
     public void Update(Framework framework)
@@ -115,6 +115,6 @@ public class ScriptManager : IDisposable
         }
 
         foreach (var script in Scripts.Values)
-            script.Call("Update");
+            script.Call("onUpdate");
     }
 }
