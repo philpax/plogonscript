@@ -1,34 +1,38 @@
 let stopwatch = new System.Diagnostics.Stopwatch();
+let visible = false;
 
-function onDraw()
-{
-    if (ImGui.Begin("Stopwatch"))
-    {
-        let ts = stopwatch.Elapsed;
+const key = VirtualKey.F4;
+let keyWasPressed = false;
 
-        let elapsedTime = System.String.Format(
-            "{0:00}:{1:00}:{2:00}.{3:00}",
-            ts.Hours, ts.Minutes, ts.Seconds,
-            ts.Milliseconds / 10
-        );
+function onUpdate() {
+  if (!KeyState[key] && keyWasPressed) {
+    visible = !visible;
+  }
+  keyWasPressed = KeyState[key];
+}
 
-        ImGui.Text(elapsedTime);
+function onDraw() {
+  if (!visible) return;
 
-        if (!stopwatch.IsRunning)
-        {
-            if (ImGui.Button("Start"))
-                stopwatch.Start();
-        }
-        else
-        {
-            if (ImGui.Button("Pause"))
-                stopwatch.Stop();
-        }
+  if (ImGui.Begin("Stopwatch")) {
+    const { Hours, Minutes, Seconds, Milliseconds } = stopwatch.Elapsed;
+    ImGui.Text(
+      System.String.Format(
+        "{0:00}:{1:00}:{2:00}.{3:00}",
+        Hours,
+        Minutes,
+        Seconds,
+        Milliseconds / 10
+      )
+    );
 
-        ImGui.SameLine();
-
-        if (ImGui.Button("Reset"))
-            stopwatch.Reset();
+    if (!stopwatch.IsRunning) {
+      if (ImGui.Button("Start")) stopwatch.Start();
+    } else {
+      if (ImGui.Button("Pause")) stopwatch.Stop();
     }
-    ImGui.End();
+    ImGui.SameLine();
+    if (ImGui.Button("Reset")) stopwatch.Reset();
+  }
+  ImGui.End();
 }
