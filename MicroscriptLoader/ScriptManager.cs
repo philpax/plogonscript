@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Dalamud.Game;
 using Dalamud.Plugin;
 
@@ -16,11 +17,47 @@ public class ScriptManager : IDisposable
     private readonly FileSystemWatcher _watcher;
     private bool _pendingResync;
 
+    private HashSet<string> _whitelistAssemblyNames = new()
+    {
+        "Dalamud",
+        "FFXIVClientStructs",
+        "ImGui.NET",
+        "ImGuiScene",
+        "Lumina",
+        "Lumina.Excel",
+        "Newtonsoft.Json",
+        "Serilog",
+        "System.Collections",
+        "System.Collections.Concurrent",
+        "System.Collections.Immutable",
+        "System.Collections.NonGeneric",
+        "System.Collections.Specialized",
+        "System.Data.Common",
+        "System.Globalization",
+        "System.Linq",
+        "System.Linq.Expressions",
+        "System.Numerics.Vectors",
+        "System.Runtime",
+        "System.Runtime.Extensions",
+        "System.Text.Encoding.Extensions",
+        "System.Text.Encodings.Web",
+        "System.Text.Json",
+        "System.Text.RegularExpressions"
+    };
+    private List<Assembly> _whitelistAssemblies = new();
+
     public ScriptManager(DalamudPluginInterface pluginInterface, Configuration configuration)
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
         _scriptsPath = Path.Combine(_pluginInterface.AssemblyLocation.Directory?.FullName!, "scripts");
+
+        // Load all of our whitelisted assemblies.
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            if (assembly.GetName().Name != null && _whitelistAssemblyNames.Contains(assembly.GetName().Name!))
+                _whitelistAssemblies.Add(assembly);
+        }
 
         Directory.CreateDirectory(_scriptsPath);
         Resync();
@@ -79,7 +116,7 @@ public class ScriptManager : IDisposable
         scriptsToRemove.ExceptWith(scriptsOnDisk.AsEnumerable());
         foreach (var scriptName in scriptsToAdd)
         {
-            var script = new Script(Path.Combine(_scriptsPath, scriptName), _pluginInterface, _configuration);
+            var script = new Script(Path.Combine(_scriptsPath, scriptName), _pluginInterface, _configuration, _whitelistAssemblies);
             Scripts.Add(scriptName, script);
         }
 

@@ -1,9 +1,7 @@
-function onLoad()
-{
-    PluginLog.Information("Hello, world!");
+function onLoad() {
+  PluginLog.Information("Hello, world!");
 }
 
-function onUnload()
-{
-    PluginLog.Information("Goodbye, world!");
+function onUnload() {
+  PluginLog.Information("Goodbye, world!");
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
@@ -14,6 +15,7 @@ namespace MicroscriptLoader;
 public class Script : IDisposable
 {
     private readonly Configuration _configuration;
+    private readonly List<Assembly> _whitelistAssemblies;
     private readonly DalamudPluginInterface _pluginInterface;
     private string _contents = string.Empty;
     private Engine? _engine;
@@ -21,75 +23,98 @@ public class Script : IDisposable
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Data.DataManager DataManager { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.ClientState.Aetherytes.AetheryteList AetheryteList { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.ClientState.Buddy.BuddyList BuddyList { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.ClientState.Conditions.Condition Condition { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.ClientState.Fates.FateTable FateTable { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0.0")]
     public static Dalamud.Game.ClientState.GamePad.GamepadState GamepadState { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.ClientState.JobGauge.JobGauges JobGauges { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.ClientState.Keys.KeyState KeyState { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.ClientState.Objects.ObjectTable ObjectTable { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.ClientState.Objects.TargetManager TargetManager { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.ClientState.Party.PartyList PartyList { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.ClientState.ClientState ClientState { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.Command.CommandManager CommandManager { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.Gui.ContextMenus.ContextMenu ContextMenu { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.Gui.Dtr.DtrBar DtrBar { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.Gui.FlyText.FlyTextGui FlyTextGui { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.Gui.PartyFinder.PartyFinderGui PartyFinderGui { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.Gui.Toast.ToastGui ToastGui { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.Gui.ChatGui ChatGui { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.Gui.GameGui GameGui { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.Network.GameNetwork GameNetwork { get; private set; } = null!;
+
     [PluginService]
     [RequiredVersion("1.0")]
     public static Dalamud.Game.ChatHandlers ChatHandlers { get; private set; } = null!;
 
 
-    public Script(string scriptPath, DalamudPluginInterface pluginInterface, Configuration configuration)
+    public Script(string scriptPath, DalamudPluginInterface pluginInterface, Configuration configuration,
+        List<Assembly> whitelistAssemblies)
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
+        _whitelistAssemblies = whitelistAssemblies;
         _pluginInterface.Inject(this);
 
         ScriptPath = scriptPath;
@@ -135,12 +160,16 @@ public class Script : IDisposable
             _engine = new Engine(options =>
             {
                 options.AllowClr(typeof(Dalamud.EntryPoint).Assembly);
-                options.CatchClrExceptions(e => true);
+                options.CatchClrExceptions();
                 options.Strict();
+                options.Interop.AllowGetType = false;
+                options.Interop.AllowSystemReflection = false;
+                options.Interop.AllowedAssemblies = _whitelistAssemblies;
             });
             _engine.SetValue("Dalamud", new NamespaceReference(_engine, "Dalamud"));
             _engine.SetValue("PluginLog", TypeReference.CreateTypeReference(_engine, typeof(PluginLog)));
-            _engine.SetValue("VirtualKey", TypeReference.CreateTypeReference(_engine, typeof(Dalamud.Game.ClientState.Keys.VirtualKey)));
+            _engine.SetValue("VirtualKey",
+                TypeReference.CreateTypeReference(_engine, typeof(Dalamud.Game.ClientState.Keys.VirtualKey)));
 
             // inject all imgui types in
             foreach (var type in typeof(ImGui).Assembly.GetExportedTypes())
