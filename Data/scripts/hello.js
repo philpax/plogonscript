@@ -1,3 +1,4 @@
+//m:{"Name":"Hello World","Author":"Philpax"}
 function onLoad() {
   PluginLog.Information("Hello, world!");
 }

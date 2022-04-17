@@ -24,7 +24,7 @@
         <Content Include="..\Data\plogonscript.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <Content LinkBase="scripts\" CopyToOutputDirectory="Always" Include="..\Data\scripts\**\*.js" />
+        <Content LinkBase="scripts\" CopyToOutputDirectory="Always" Include="..\Data\scripts\**\*.js"/>
     </ItemGroup>
 
     <PropertyGroup>
@@ -32,8 +32,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DalamudPackager" Version="2.1.5" />
-        <PackageReference Include="jint" Version="2041243103.0.0" />
+        <PackageReference Include="DalamudPackager" Version="2.1.5"/>
+        <PackageReference Include="jint" Version="2041243103.0.0"/>
         <Reference Include="FFXIVClientStructs">
             <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
             <Private>false</Private>

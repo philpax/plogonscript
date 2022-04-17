@@ -1,3 +1,4 @@
+//m:{"Name":"Stopwatch","Author":"Philpax"}
 let stopwatch = new System.Diagnostics.Stopwatch();
 let visible = false;
 

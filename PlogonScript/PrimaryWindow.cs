@@ -8,8 +8,8 @@ namespace PlogonScript;
 
 internal class PrimaryWindow : Window
 {
-    private readonly ScriptManager _scriptManager;
     private readonly Configuration _configuration;
+    private readonly ScriptManager _scriptManager;
 
     public PrimaryWindow(ScriptManager scriptManager, Configuration configuration) : base("PlogonScript")
     {
@@ -58,54 +58,8 @@ internal class PrimaryWindow : Window
     {
         if (!ImGui.BeginMenuBar()) return;
 
-        if (ImGui.BeginMenu("File"))
-        {
-            if (ImGui.MenuItem("Open Scripts Folder"))
-                _scriptManager.OpenFolder();
-
-            if (SelectedScript != null)
-            {
-                if (ImGui.MenuItem("Save", "CTRL+S"))
-                    SelectedScript.SaveContents();
-            }
-
-            ImGui.EndMenu();
-        }
-
-        if (SelectedScript != null && ImGui.BeginMenu("Script"))
-        {
-            var originalAutoload = _configuration.AutoloadedScripts.GetValueOrDefault(SelectedScript.Name);
-            var imguiAutoload = originalAutoload;
-            ImGui.Checkbox("Autoload", ref imguiAutoload);
-            if (imguiAutoload != originalAutoload)
-            {
-                _configuration.AutoloadedScripts[SelectedScript.Name] = imguiAutoload;
-                _configuration.Save();
-            }
-
-            if (SelectedScript.Loaded)
-            {
-                if (ImGui.MenuItem("Reload Script"))
-                {
-                    SelectedScript.Unload();
-                    SelectedScript.Load();
-                }
-
-                if (ImGui.MenuItem("Unload Script"))
-                {
-                    SelectedScript.Unload();
-                }
-            }
-            else
-            {
-                if (ImGui.MenuItem("Load Script"))
-                {
-                    SelectedScript.Load();
-                }
-            }
-
-            ImGui.EndMenu();
-        }
+        if (ImGui.MenuItem("Open Scripts Folder"))
+            _scriptManager.OpenFolder();
 
         ImGui.EndMenuBar();
     }
@@ -116,8 +70,8 @@ internal class PrimaryWindow : Window
 
         foreach (var script in _scriptManager.Scripts.Values)
         {
-            if (ImGui.Selectable(script.Name, script.Name == SelectedScriptName))
-                SelectedScriptName = script.Name;
+            if (ImGui.Selectable(script.DisplayName, script.Filename == SelectedScriptName))
+                SelectedScriptName = script.Filename;
             ImGui.SameLine();
             ImGui.PushStyleColor(ImGuiCol.Button,
                 script.Loaded
@@ -130,22 +84,58 @@ internal class PrimaryWindow : Window
         ImGui.EndChild();
     }
 
-
     private void DrawRightPane()
     {
-        // Leave room for 1 line below us
-        ImGui.BeginChild("item view", new Vector2(0, 0), true);
-        DrawScript();
+        ImGui.BeginChild("item view", new Vector2(0, 0), true, ImGuiWindowFlags.MenuBar);
+        if (SelectedScript != null)
+        {
+            if (ImGui.BeginMenuBar())
+            {
+                string name = SelectedScript.Metadata.Name, author = SelectedScript.Metadata.Author;
+                ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X * 0.2f);
+                ImGui.InputText("Name", ref name, 32);
+                ImGui.SameLine();
+                ImGui.InputText("Author", ref author, 32);
+                SelectedScript.Metadata = new ScriptMetadata(name, author);
+
+                if (ImGui.MenuItem("Save", SelectedScript.Metadata.Valid))
+                    SelectedScript.SaveContents();
+
+                var originalAutoload = _configuration.AutoloadedScripts.GetValueOrDefault(SelectedScript.Filename);
+                var imguiAutoload = originalAutoload;
+                ImGui.Checkbox("Autoload", ref imguiAutoload);
+                if (imguiAutoload != originalAutoload)
+                {
+                    _configuration.AutoloadedScripts[SelectedScript.Filename] = imguiAutoload;
+                    _configuration.Save();
+                }
+
+                if (SelectedScript.Loaded)
+                {
+                    if (ImGui.MenuItem("Reload"))
+                    {
+                        SelectedScript.Unload();
+                        SelectedScript.Load();
+                    }
+
+                    if (ImGui.MenuItem("Unload")) SelectedScript.Unload();
+                }
+                else
+                {
+                    if (ImGui.MenuItem("Load")) SelectedScript.Load();
+                }
+
+                ImGui.PopItemWidth();
+            }
+
+            ImGui.EndMenuBar();
+
+            var contents = SelectedScript.Contents;
+            ImGui.InputTextMultiline("##source", ref contents, 16384,
+                new Vector2(-float.Epsilon, -float.Epsilon), ImGuiInputTextFlags.AllowTabInput);
+            SelectedScript.Contents = contents;
+        }
+
         ImGui.EndChild();
-    }
-
-    private void DrawScript()
-    {
-        if (SelectedScript == null) return;
-
-        var contents = SelectedScript.Contents;
-        ImGui.InputTextMultiline("##source", ref contents, 16384,
-            new Vector2(-float.Epsilon, -float.Epsilon), ImGuiInputTextFlags.AllowTabInput);
-        SelectedScript.Contents = contents;
     }
 }
