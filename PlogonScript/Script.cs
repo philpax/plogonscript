@@ -18,8 +18,7 @@ namespace PlogonScript;
 
 public readonly record struct ScriptMetadata(string Name, string Author)
 {
-    [JsonIgnore]
-    public bool Valid => Name.Length > 0 && Author.Length > 0;
+    [JsonIgnore] public bool Valid => Name.Length > 0 && Author.Length > 0;
 }
 
 public class Script : IDisposable
@@ -108,17 +107,8 @@ public class Script : IDisposable
                 options.Interop.AllowSystemReflection = false;
                 options.Interop.AllowedAssemblies = _whitelistAssemblies;
             });
-            _engine.SetValue("Dalamud", new NamespaceReference(_engine, "Dalamud"));
-            _engine.SetValue("PluginLog", TypeReference.CreateTypeReference(_engine, typeof(PluginLog)));
-            _engine.SetValue("VirtualKey",
-                TypeReference.CreateTypeReference(_engine, typeof(VirtualKey)));
 
-            // inject all imgui types in
-            foreach (var type in typeof(ImGui).Assembly.GetExportedTypes())
-                _engine.SetValue(type.Name, TypeReference.CreateTypeReference(_engine, type));
-
-            // Inject all of our services in
-            ScriptServices.InjectIntoEngine(_engine);
+            InitialiseGlobalState(_engine);
 
             _engine.Execute(_contents);
             Call("onLoad");
@@ -133,6 +123,24 @@ public class Script : IDisposable
         }
     }
 
+    private void InitialiseGlobalState(Engine engine)
+    {
+        engine.SetValue("Dalamud", new NamespaceReference(engine, "Dalamud"));
+        engine.SetValue("PluginLog", TypeReference.CreateTypeReference(engine, typeof(PluginLog)));
+        engine.SetValue("VirtualKey",
+            TypeReference.CreateTypeReference(engine, typeof(VirtualKey)));
+
+        // Inject all imgui types in
+        foreach (var type in typeof(ImGui).Assembly.GetExportedTypes())
+            engine.SetValue(type.Name, TypeReference.CreateTypeReference(engine, type));
+
+        // Inject all of our services in
+        ScriptServices.InjectIntoEngine(engine);
+
+        // Provide an alternative console implementation
+        engine.SetValue("console", new ScriptConsole(DisplayName));
+    }
+
     public void Unload(bool disableAutoload)
     {
         if (disableAutoload)
@@ -140,7 +148,7 @@ public class Script : IDisposable
             _configuration.AutoloadedScripts[Filename] = false;
             _configuration.Save();
         }
-        
+
         if (!Loaded) return;
 
         Call("onUnload");
