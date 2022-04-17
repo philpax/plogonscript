@@ -70,15 +70,18 @@ internal class PrimaryWindow : Window
 
         foreach (var script in _scriptManager.Scripts.Values)
         {
+            bool loaded = script.Loaded;
+            if (ImGui.Checkbox("", ref loaded))
+            {
+                if (loaded)
+                    script.Load();
+                else
+                    script.Unload(true);
+            }
+            ImGui.SameLine();
+
             if (ImGui.Selectable(script.DisplayName, script.Filename == SelectedScriptName))
                 SelectedScriptName = script.Filename;
-            ImGui.SameLine();
-            ImGui.PushStyleColor(ImGuiCol.Button,
-                script.Loaded
-                    ? new Vector4(0.54f, 0.60f, 0.06f, 1.0f)
-                    : new Vector4(0.74f, 0.08f, 0.31f, 1.0f));
-            ImGui.SmallButton("  ");
-            ImGui.PopStyleColor();
         }
 
         ImGui.EndChild();
