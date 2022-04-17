@@ -4,27 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Dalamud;
-using Dalamud.Data;
-using Dalamud.Game;
-using Dalamud.Game.ClientState;
-using Dalamud.Game.ClientState.Aetherytes;
-using Dalamud.Game.ClientState.Buddy;
-using Dalamud.Game.ClientState.Conditions;
-using Dalamud.Game.ClientState.Fates;
-using Dalamud.Game.ClientState.GamePad;
-using Dalamud.Game.ClientState.JobGauge;
 using Dalamud.Game.ClientState.Keys;
-using Dalamud.Game.ClientState.Objects;
-using Dalamud.Game.ClientState.Party;
-using Dalamud.Game.Command;
-using Dalamud.Game.Gui;
-using Dalamud.Game.Gui.ContextMenus;
-using Dalamud.Game.Gui.Dtr;
-using Dalamud.Game.Gui.FlyText;
-using Dalamud.Game.Gui.PartyFinder;
-using Dalamud.Game.Gui.Toast;
-using Dalamud.Game.Network;
-using Dalamud.IoC;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using Dalamud.Utility;
@@ -56,7 +36,7 @@ public class Script : IDisposable
         _pluginInterface = pluginInterface;
         _configuration = configuration;
         _whitelistAssemblies = whitelistAssemblies;
-        _pluginInterface.Inject(this);
+        _pluginInterface.Create<ScriptServices>();
 
         ScriptPath = scriptPath;
         LoadContents();
@@ -66,94 +46,6 @@ public class Script : IDisposable
 
     public string Filename => Path.GetFileName(ScriptPath);
     public string DisplayName => Metadata.Name.Length > 0 ? Metadata.Name : Filename;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static DataManager DataManager { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static AetheryteList AetheryteList { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static BuddyList BuddyList { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static Condition Condition { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static FateTable FateTable { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0.0")]
-    public static GamepadState GamepadState { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static JobGauges JobGauges { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static KeyState KeyState { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static ObjectTable ObjectTable { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static TargetManager TargetManager { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static PartyList PartyList { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static ClientState ClientState { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static CommandManager CommandManager { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static ContextMenu ContextMenu { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static DtrBar DtrBar { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static FlyTextGui FlyTextGui { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static PartyFinderGui PartyFinderGui { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static ToastGui ToastGui { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static ChatGui ChatGui { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static GameGui GameGui { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static GameNetwork GameNetwork { get; private set; } = null!;
-
-    [PluginService]
-    [RequiredVersion("1.0")]
-    public static ChatHandlers ChatHandlers { get; private set; } = null!;
 
     private string ScriptPath { get; }
 
@@ -226,28 +118,28 @@ public class Script : IDisposable
                 _engine.SetValue(type.Name, TypeReference.CreateTypeReference(_engine, type));
 
             // Inject all of our services in
-            _engine.SetValue("DataManager", DataManager);
-            _engine.SetValue("AetheryteList", AetheryteList);
-            _engine.SetValue("BuddyList", BuddyList);
-            _engine.SetValue("Condition", Condition);
-            _engine.SetValue("FateTable", FateTable);
-            _engine.SetValue("GamepadState", GamepadState);
-            _engine.SetValue("JobGauges", JobGauges);
-            _engine.SetValue("KeyState", KeyState);
-            _engine.SetValue("ObjectTable", ObjectTable);
-            _engine.SetValue("TargetManager", TargetManager);
-            _engine.SetValue("PartyList", PartyList);
-            _engine.SetValue("ClientState", ClientState);
-            _engine.SetValue("CommandManager", CommandManager);
-            _engine.SetValue("ContextMenu", ContextMenu);
-            _engine.SetValue("DtrBar", DtrBar);
-            _engine.SetValue("FlyTextGui", FlyTextGui);
-            _engine.SetValue("PartyFinderGui", PartyFinderGui);
-            _engine.SetValue("ToastGui", ToastGui);
-            _engine.SetValue("ChatGui", ChatGui);
-            _engine.SetValue("GameGui", GameGui);
-            _engine.SetValue("GameNetwork", GameNetwork);
-            _engine.SetValue("ChatHandlers", ChatHandlers);
+            _engine.SetValue("DataManager", ScriptServices.DataManager);
+            _engine.SetValue("AetheryteList", ScriptServices.AetheryteList);
+            _engine.SetValue("BuddyList", ScriptServices.BuddyList);
+            _engine.SetValue("Condition", ScriptServices.Condition);
+            _engine.SetValue("FateTable", ScriptServices.FateTable);
+            _engine.SetValue("GamepadState", ScriptServices.GamepadState);
+            _engine.SetValue("JobGauges", ScriptServices.JobGauges);
+            _engine.SetValue("KeyState", ScriptServices.KeyState);
+            _engine.SetValue("ObjectTable", ScriptServices.ObjectTable);
+            _engine.SetValue("TargetManager", ScriptServices.TargetManager);
+            _engine.SetValue("PartyList", ScriptServices.PartyList);
+            _engine.SetValue("ClientState", ScriptServices.ClientState);
+            _engine.SetValue("CommandManager", ScriptServices.CommandManager);
+            _engine.SetValue("ContextMenu", ScriptServices.ContextMenu);
+            _engine.SetValue("DtrBar", ScriptServices.DtrBar);
+            _engine.SetValue("FlyTextGui", ScriptServices.FlyTextGui);
+            _engine.SetValue("PartyFinderGui", ScriptServices.PartyFinderGui);
+            _engine.SetValue("ToastGui", ScriptServices.ToastGui);
+            _engine.SetValue("ChatGui", ScriptServices.ChatGui);
+            _engine.SetValue("GameGui", ScriptServices.GameGui);
+            _engine.SetValue("GameNetwork", ScriptServices.GameNetwork);
+            _engine.SetValue("ChatHandlers", ScriptServices.ChatHandlers);
 
             _engine.Execute(_contents);
             Call("onLoad");
