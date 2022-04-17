@@ -20,6 +20,7 @@ using Dalamud.Game.Gui.Toast;
 using Dalamud.Game.Network;
 using Dalamud.IoC;
 using Dalamud.Plugin;
+using Jint;
 
 namespace PlogonScript;
 
@@ -112,4 +113,30 @@ public class ScriptServices
     [PluginService]
     [RequiredVersion("1.0")]
     public static ChatHandlers ChatHandlers { get; private set; } = null!;
+
+    public static void InjectIntoEngine(Engine engine)
+    {
+        engine.SetValue("DataManager", DataManager);
+        engine.SetValue("AetheryteList", AetheryteList);
+        engine.SetValue("BuddyList", BuddyList);
+        engine.SetValue("Condition", Condition);
+        engine.SetValue("FateTable", FateTable);
+        engine.SetValue("GamepadState", GamepadState);
+        engine.SetValue("JobGauges", JobGauges);
+        engine.SetValue("KeyState", KeyState);
+        engine.SetValue("ObjectTable", ObjectTable);
+        engine.SetValue("TargetManager", TargetManager);
+        engine.SetValue("PartyList", PartyList);
+        engine.SetValue("ClientState", ClientState);
+        engine.SetValue("CommandManager", CommandManager);
+        engine.SetValue("ContextMenu", ContextMenu);
+        engine.SetValue("DtrBar", DtrBar);
+        engine.SetValue("FlyTextGui", FlyTextGui);
+        engine.SetValue("PartyFinderGui", PartyFinderGui);
+        engine.SetValue("ToastGui", ToastGui);
+        engine.SetValue("ChatGui", ChatGui);
+        engine.SetValue("GameGui", GameGui);
+        engine.SetValue("GameNetwork", GameNetwork);
+        engine.SetValue("ChatHandlers", ChatHandlers);
+    }
 }

@@ -118,28 +118,7 @@ public class Script : IDisposable
                 _engine.SetValue(type.Name, TypeReference.CreateTypeReference(_engine, type));
 
             // Inject all of our services in
-            _engine.SetValue("DataManager", ScriptServices.DataManager);
-            _engine.SetValue("AetheryteList", ScriptServices.AetheryteList);
-            _engine.SetValue("BuddyList", ScriptServices.BuddyList);
-            _engine.SetValue("Condition", ScriptServices.Condition);
-            _engine.SetValue("FateTable", ScriptServices.FateTable);
-            _engine.SetValue("GamepadState", ScriptServices.GamepadState);
-            _engine.SetValue("JobGauges", ScriptServices.JobGauges);
-            _engine.SetValue("KeyState", ScriptServices.KeyState);
-            _engine.SetValue("ObjectTable", ScriptServices.ObjectTable);
-            _engine.SetValue("TargetManager", ScriptServices.TargetManager);
-            _engine.SetValue("PartyList", ScriptServices.PartyList);
-            _engine.SetValue("ClientState", ScriptServices.ClientState);
-            _engine.SetValue("CommandManager", ScriptServices.CommandManager);
-            _engine.SetValue("ContextMenu", ScriptServices.ContextMenu);
-            _engine.SetValue("DtrBar", ScriptServices.DtrBar);
-            _engine.SetValue("FlyTextGui", ScriptServices.FlyTextGui);
-            _engine.SetValue("PartyFinderGui", ScriptServices.PartyFinderGui);
-            _engine.SetValue("ToastGui", ScriptServices.ToastGui);
-            _engine.SetValue("ChatGui", ScriptServices.ChatGui);
-            _engine.SetValue("GameGui", ScriptServices.GameGui);
-            _engine.SetValue("GameNetwork", ScriptServices.GameNetwork);
-            _engine.SetValue("ChatHandlers", ScriptServices.ChatHandlers);
+            ScriptServices.InjectIntoEngine(_engine);
 
             _engine.Execute(_contents);
             Call("onLoad");
