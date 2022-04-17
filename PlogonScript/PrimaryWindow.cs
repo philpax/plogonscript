@@ -66,7 +66,7 @@ internal class PrimaryWindow : Window
 
     private void DrawLeftPane()
     {
-        ImGui.BeginChild("left pane", new Vector2(150, 0), true);
+        ImGui.BeginChild("left pane", new Vector2(220, 0), true);
 
         foreach (var script in _scriptManager.Scripts.Values)
         {
