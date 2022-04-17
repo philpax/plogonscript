@@ -106,8 +106,8 @@ public class ScriptManager : IDisposable
         foreach (var load in _pendingLoads)
             if (Scripts.TryGetValue(load, out var script))
                 script.LoadContents();
-        
         _pendingLoads.Clear();
+
         if (_pendingResync)
         {
             Resync();
