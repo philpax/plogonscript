@@ -96,9 +96,13 @@ internal class PrimaryWindow : Window
             {
                 string name = SelectedScript.Metadata.Name, author = SelectedScript.Metadata.Author;
                 ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X * 0.2f);
-                ImGui.InputText("Name", ref name, 32);
+                ImGui.Text("Name");
                 ImGui.SameLine();
-                ImGui.InputText("Author", ref author, 32);
+                ImGui.InputText("##ScriptName", ref name, 32);
+                ImGui.SameLine();
+                ImGui.Text("Author");
+                ImGui.SameLine();
+                ImGui.InputText("##ScriptAuthor", ref author, 32);
                 SelectedScript.Metadata = new ScriptMetadata(name, author);
 
                 if (ImGui.MenuItem("Save", SelectedScript.Metadata.Valid))
