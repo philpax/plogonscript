@@ -14,8 +14,9 @@ public class ScriptManager : IDisposable
     private readonly HashSet<string> _pendingLoads = new();
     private readonly DalamudPluginInterface _pluginInterface;
     private readonly string _scriptsPath;
+
     private readonly FileSystemWatcher _watcher;
-    private bool _pendingResync;
+
     private readonly List<Assembly> _whitelistAssemblies = new();
 
     private readonly HashSet<string> _whitelistAssemblyNames = new()
@@ -46,6 +47,7 @@ public class ScriptManager : IDisposable
         "System.Text.RegularExpressions"
     };
 
+    private bool _pendingResync;
     public ScriptManager(DalamudPluginInterface pluginInterface, Configuration configuration)
     {
         _pluginInterface = pluginInterface;
@@ -104,7 +106,8 @@ public class ScriptManager : IDisposable
 
     private void Resync()
     {
-        var scriptsOnDisk = Directory.EnumerateFiles(_scriptsPath, "*.js").Select(a => Path.GetFileName(a)).ToHashSet();
+        var scriptsOnDisk = Directory.EnumerateFiles(_scriptsPath, "*.js").Select(Path.GetFileName).Select(a => a!)
+            .ToHashSet();
         var scriptsHere = Scripts.Keys.ToHashSet();
 
         var scriptsToAdd = new HashSet<string>(scriptsOnDisk.AsEnumerable());
@@ -122,8 +125,9 @@ public class ScriptManager : IDisposable
         foreach (var scriptName in scriptsToRemove)
         {
             Scripts.Remove(scriptName, out var script);
-            if (script != null) script.Dispose();
+            script?.Dispose();
         }
+    }
     }
 
     public void OpenFolder()
@@ -133,8 +137,7 @@ public class ScriptManager : IDisposable
 
     public void Draw()
     {
-        foreach (var script in Scripts.Values)
-            script.Call("onDraw");
+        CallEvent(GlobalEvents.OnDraw);
     }
 
     public void Update()
@@ -151,6 +154,9 @@ public class ScriptManager : IDisposable
         }
 
 
+        CallEvent(GlobalEvents.OnUpdate);
+    }
+
     public void Delete(Script script)
     {
         var path = script.Path;
@@ -158,7 +164,10 @@ public class ScriptManager : IDisposable
         script.Dispose();
         File.Delete(path);
     }
+
+    internal void CallEvent(GlobalEvent evt, Dictionary<string, object>? arguments = null)
+    {
         foreach (var script in Scripts.Values)
-            script.Call("onUpdate");
+            script.CallGlobalFunction(evt.Name, arguments);
     }
 }

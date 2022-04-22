@@ -62,7 +62,7 @@ public class Script : IDisposable
 
     public void LoadContents()
     {
-        var contents = File.ReadAllText(ScriptPath);
+        var contents = File.ReadAllText(Path);
         var lines = contents.Split('\n');
         if (lines.FirstOrDefault()!.StartsWith("//m:"))
         {
@@ -109,7 +109,7 @@ public class Script : IDisposable
             InitialiseGlobalState(_engine);
 
             _engine.Execute(_contents);
-            Call("onLoad");
+            GlobalEvents.OnLoad.Call(this);
 
             _configuration.AutoloadedScripts[Filename] = true;
             _configuration.Save();
@@ -149,11 +149,11 @@ public class Script : IDisposable
 
         if (!Loaded) return;
 
-        Call("onUnload");
+        GlobalEvents.OnUnload.Call(this);
         _engine = null;
     }
 
-    public void Call(string methodName, Dictionary<string, JsValue>? arguments = null)
+    internal void CallGlobalFunction(string methodName, Dictionary<string, object>? arguments = null)
     {
         if (_engine == null)
             return;
