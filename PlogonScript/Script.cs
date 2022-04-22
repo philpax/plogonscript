@@ -75,9 +75,6 @@ public class Script : IDisposable
 
     public void SaveContents()
     {
-        if (_contents.Length == 0)
-            return;
-
         var contents = _contents;
         if (Metadata.Valid)
         {
