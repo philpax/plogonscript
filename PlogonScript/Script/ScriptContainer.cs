@@ -69,7 +69,12 @@ public class ScriptContainer
 
     public void Update()
     {
-        // Update the KeyUp state.
+        UpdateKeyUp();
+        CallEvent(Events.OnUpdate);
+    }
+
+    private void UpdateKeyUp()
+    {
         foreach (var key in _prevKeyState.Keys)
         {
             var newState = Services.KeyState[key];
@@ -79,8 +84,6 @@ public class ScriptContainer
             if (keyUp)
                 CallEvent(Events.OnKeyUp, new Dictionary<string, object> {{"key", key}});
         }
-
-        CallEvent(Events.OnUpdate);
     }
 
     public void Draw()
