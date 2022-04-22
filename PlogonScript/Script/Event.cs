@@ -7,22 +7,27 @@ namespace PlogonScript.Script;
 
 public class Event
 {
-    public Event(string name, Dictionary<string, Type>? arguments = null)
+    public Event(string name, params (string, Type)[] arguments)
     {
         Name = name;
-        Arguments = arguments ?? new Dictionary<string, Type>();
+        Arguments = ToDictionary(arguments);
+    }
+
+    private static Dictionary<string, ValueType> ToDictionary<ValueType>(IEnumerable<(string, ValueType)>? arguments)
+    {
+        return arguments?.ToDictionary(t => t.Item1, t => t.Item2) ?? new Dictionary<string, ValueType>();
     }
 
     public string Name { get; }
     public Dictionary<string, Type> Arguments { get; }
 
-    public void Call(Script script, Dictionary<string, object>? arguments = null)
+    public void Call(Script script, params (string, object)[] arguments)
     {
-        arguments ??= new Dictionary<string, object>();
+        var args = ToDictionary(arguments);
 
-        if (arguments.Any(kv => !(Arguments.ContainsKey(kv.Key) && arguments[kv.Key].GetType() == Arguments[kv.Key])))
+        if (args.Any(kv => !(Arguments.ContainsKey(kv.Key) && args[kv.Key].GetType() == Arguments[kv.Key])))
             throw new VerificationException("failed to match arguments for event");
 
-        script.CallGlobalFunction(Name, arguments);
+        script.CallGlobalFunction(Name, args);
     }
 }

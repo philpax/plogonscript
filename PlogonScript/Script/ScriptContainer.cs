@@ -83,7 +83,7 @@ public class ScriptContainer
             _prevKeyState[key] = newState;
 
             if (keyUp)
-                CallEvent(Events.OnKeyUp, new Dictionary<string, object> {{"key", key}});
+                CallEvent(Events.OnKeyUp, ("key", key));
         }
     }
 
@@ -94,24 +94,20 @@ public class ScriptContainer
 
     private void ChatGuiOnChatMessageHandled(XivChatType type, uint senderId, SeString sender, SeString message)
     {
-        CallEvent(Events.OnChatMessageHandled, new Dictionary<string, object>
-        {
-            {"type", type}, {"senderId", senderId}, {"sender", sender}, {"message", message}
-        });
+        CallEvent(Events.OnChatMessageHandled, ("type", type), ("senderId", senderId), ("sender", sender),
+            ("message", message));
     }
 
     private void ChatGuiOnChatMessageUnhandled(XivChatType type, uint senderId, SeString sender, SeString message)
     {
-        CallEvent(Events.OnChatMessageUnhandled, new Dictionary<string, object>
-        {
-            {"type", type}, {"senderId", senderId}, {"sender", sender}, {"message", message}
-        });
+        CallEvent(Events.OnChatMessageUnhandled, ("type", type), ("senderId", senderId), ("sender", sender),
+            ("message", message));
     }
 
-    private void CallEvent(Event evt, Dictionary<string, object>? arguments = null)
+    private void CallEvent(Event evt, params (string, object)[] arguments)
     {
         foreach (var script in Scripts.Values)
-            script.CallGlobalFunction(evt.Name, arguments);
+            evt.Call(script, arguments);
     }
 
     public Script MakeScript(string scriptPath, bool loadContents)
@@ -134,7 +130,7 @@ public class ScriptContainer
     {
         if (filename == null)
             return null;
-        
+
         return _scripts.ContainsKey(filename) ? _scripts[filename] : null;
     }
 }
