@@ -2,11 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using Dalamud.Game.ClientState.Keys;
-using Dalamud.Game.Text;
-using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Plugin;
 
 namespace PlogonScript.Script;
@@ -20,57 +16,20 @@ public class ScriptManager : IDisposable
 
     private readonly FileSystemWatcher _watcher;
 
-    private readonly List<Assembly> _whitelistAssemblies = new();
-
-    private readonly HashSet<string> _whitelistAssemblyNames = new()
-    {
-        "Dalamud",
-        "FFXIVClientStructs",
-        "ImGui.NET",
-        "ImGuiScene",
-        "Lumina",
-        "Lumina.Excel",
-        "Newtonsoft.Json",
-        "Serilog",
-        "System.Collections",
-        "System.Collections.Concurrent",
-        "System.Collections.Immutable",
-        "System.Collections.NonGeneric",
-        "System.Collections.Specialized",
-        "System.Data.Common",
-        "System.Globalization",
-        "System.Linq",
-        "System.Linq.Expressions",
-        "System.Numerics.Vectors",
-        "System.Runtime",
-        "System.Runtime.Extensions",
-        "System.Text.Encoding.Extensions",
-        "System.Text.Encodings.Web",
-        "System.Text.Json",
-        "System.Text.RegularExpressions"
-    };
-
     private bool _pendingResync;
-    private readonly Dictionary<VirtualKey, bool> _prevKeyState;
+    private readonly ScriptContainer _scriptContainer;
 
     public ScriptManager(DalamudPluginInterface pluginInterface, Configuration configuration)
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
 
-        _prevKeyState = Services.KeyState.GetValidVirtualKeys().ToHashSet().ToDictionary(a => a, _ => false);
+        _scriptContainer = new ScriptContainer(configuration);
 
         _scriptsPath = Path.Combine(_pluginInterface.AssemblyLocation.Directory?.FullName!, "scripts");
-
-        // Load all of our whitelisted assemblies.
-        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            if (assembly.GetName().Name != null && _whitelistAssemblyNames.Contains(assembly.GetName().Name!))
-                _whitelistAssemblies.Add(assembly);
-
         Directory.CreateDirectory(_scriptsPath);
-        Resync();
 
-        Services.ChatGui.ChatMessageUnhandled += ChatGuiOnChatMessageUnhandled;
+        Resync();
 
         _watcher = new FileSystemWatcher(_scriptsPath);
         _watcher.NotifyFilter = NotifyFilters.Attributes
@@ -92,26 +51,23 @@ public class ScriptManager : IDisposable
         _watcher.EnableRaisingEvents = true;
 
         foreach (var (key, _) in _configuration.AutoloadedScripts.Where(p => p.Value))
-            if (Scripts.TryGetValue(key, out var script))
-                script.Load();
+        {
+            _scriptContainer.Get(key)?.Load();
+        }
     }
 
-    public string? SelectedScriptName
+    public IEnumerable<Script> Scripts => _scriptContainer.Scripts.Values;
+
+    public Script? SelectedScript
     {
-        get => _configuration.SelectedScript;
-        set => _configuration.SelectedScript = value;
+        get => _scriptContainer.Get(_configuration.SelectedScript);
+        set => _configuration.SelectedScript = value?.Filename;
     }
-
-    public Dictionary<string, Script> Scripts { get; } = new();
 
     public void Dispose()
     {
-        Services.ChatGui.ChatMessageUnhandled -= ChatGuiOnChatMessageUnhandled;
-
         _watcher.Dispose();
-
-        foreach (var (_, script) in Scripts) script.Dispose();
-        Scripts.Clear();
+        _scriptContainer.Dispose();
     }
 
     private void HandleFilesystemEvent(FileSystemEventArgs? fileSystemEventArgs)
@@ -126,27 +82,22 @@ public class ScriptManager : IDisposable
     {
         var scriptsOnDisk = Directory.EnumerateFiles(_scriptsPath, "*.js").Select(Path.GetFileName).Select(a => a!)
             .ToHashSet();
-        var scriptsHere = Scripts.Keys.ToHashSet();
+        var scriptsLoaded = _scriptContainer.Scripts.Keys.ToHashSet();
 
         var scriptsToAdd = new HashSet<string>(scriptsOnDisk.AsEnumerable());
-        scriptsToAdd.ExceptWith(scriptsHere.AsEnumerable());
+        scriptsToAdd.ExceptWith(scriptsLoaded.AsEnumerable());
+        foreach (var scriptName in scriptsToAdd)
+            _scriptContainer.Add(MakeScript(scriptName, true));
 
-        var scriptsToRemove = new HashSet<string>(scriptsHere.AsEnumerable());
+        var scriptsToRemove = new HashSet<string>(scriptsLoaded.AsEnumerable());
         scriptsToRemove.ExceptWith(scriptsOnDisk.AsEnumerable());
-        foreach (var scriptName in scriptsToAdd) Scripts.Add(scriptName, CreateScript(scriptName, true));
-
-        foreach (var scriptName in scriptsToRemove)
-        {
-            Scripts.Remove(scriptName, out var script);
-            script?.Dispose();
-        }
+        foreach (var script in scriptsToRemove.Select(_scriptContainer.Get).Where(a => a != null))
+            _scriptContainer.Remove(script!);
     }
 
-    private Script CreateScript(string scriptName, bool loadContents)
+    private Script MakeScript(string scriptName, bool loadContents)
     {
-        var scriptPath = Path.Combine(_scriptsPath, scriptName);
-        return new Script(scriptPath, _configuration,
-            _whitelistAssemblies, loadContents);
+        return _scriptContainer.MakeScript(Path.Combine(_scriptsPath, scriptName), loadContents);
     }
 
     public void OpenFolder()
@@ -154,15 +105,10 @@ public class ScriptManager : IDisposable
         Utils.OpenFolderInExplorer(_scriptsPath);
     }
 
-    public void Draw()
-    {
-        CallEvent(GlobalEvents.OnDraw);
-    }
-
     public void Update()
     {
         foreach (var load in _pendingLoads)
-            if (Scripts.TryGetValue(load, out var script))
+            if (_scriptContainer.Scripts.TryGetValue(load, out var script))
                 script.LoadContents();
         _pendingLoads.Clear();
 
@@ -172,31 +118,20 @@ public class ScriptManager : IDisposable
             _pendingResync = false;
         }
 
-        // Update the KeyUp state.
-        foreach (var key in _prevKeyState.Keys)
-        {
-            var newState = Services.KeyState[key];
-            var keyUp = !newState && _prevKeyState[key];
-            _prevKeyState[key] = newState;
+        if (SelectedScript == null || !_scriptContainer.Scripts.ContainsKey(SelectedScript.Filename))
+            SelectedScript = Scripts.FirstOrDefault();
 
-            if (keyUp)
-                CallEvent(GlobalEvents.OnKeyUp, new Dictionary<string, object> {{"key", key}});
-        }
-
-        CallEvent(GlobalEvents.OnUpdate);
+        _scriptContainer.Update();
     }
 
-    private void ChatGuiOnChatMessageUnhandled(XivChatType type, uint senderId, SeString sender, SeString message)
+    public void Draw()
     {
-        CallEvent(GlobalEvents.OnChatMessageUnhandled, new Dictionary<string, object>
-        {
-            {"type", type}, {"senderId", senderId}, {"sender", sender}, {"message", message}
-        });
+        _scriptContainer.Draw();
     }
 
     public void Create(string filename, string name, string author, IEnumerable<GlobalEvent> globalEvents)
     {
-        var script = CreateScript(filename, false);
+        var script = MakeScript(filename, false);
         script.Metadata = new ScriptMetadata(name, author);
         foreach (var globalEvent in globalEvents)
         {
@@ -216,21 +151,14 @@ public class ScriptManager : IDisposable
         }
 
         script.SaveContents();
-        Scripts.Add(filename, script);
-        SelectedScriptName = filename;
+        _scriptContainer.Add(script);
+        _configuration.SelectedScript = filename;
     }
 
     public void Delete(Script script)
     {
         var path = script.Path;
-        Scripts.Remove(script.Filename);
-        script.Dispose();
+        _scriptContainer.Remove(script);
         File.Delete(path);
-    }
-
-    private void CallEvent(GlobalEvent evt, Dictionary<string, object>? arguments = null)
-    {
-        foreach (var script in Scripts.Values)
-            script.CallGlobalFunction(evt.Name, arguments);
     }
 }

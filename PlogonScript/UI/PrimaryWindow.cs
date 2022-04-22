@@ -11,6 +11,12 @@ internal class PrimaryWindow : Window
     private readonly NewScriptWindow _newScriptWindow;
     private readonly ScriptManager _scriptManager;
 
+    private Script.Script? SelectedScript
+    {
+        get => _scriptManager.SelectedScript;
+        set => _scriptManager.SelectedScript = value;
+    }
+
     public PrimaryWindow(ScriptManager scriptManager, NewScriptWindow newScriptWindow) : base("PlogonScript")
     {
         _scriptManager = scriptManager;
@@ -19,29 +25,6 @@ internal class PrimaryWindow : Window
         Size = new Vector2(1200, 675);
         SizeCondition = ImGuiCond.FirstUseEver;
         Flags |= ImGuiWindowFlags.MenuBar;
-    }
-
-    private string? SelectedScriptName
-    {
-        get => _scriptManager.SelectedScriptName;
-        set => _scriptManager.SelectedScriptName = value;
-    }
-
-    private Script.Script? SelectedScript
-    {
-        get
-        {
-            if (SelectedScriptName == null) return null;
-
-            _scriptManager.Scripts.TryGetValue(SelectedScriptName, out var script);
-            return script;
-        }
-    }
-
-    public override void Update()
-    {
-        if (SelectedScriptName == null || !_scriptManager.Scripts.ContainsKey(SelectedScriptName))
-            SelectedScriptName = _scriptManager.Scripts.Keys.FirstOrDefault();
     }
 
     public override void Draw()
@@ -69,7 +52,7 @@ internal class PrimaryWindow : Window
         if (ImGui.Button("New Script", new Vector2(-float.Epsilon, 30.0f))) _newScriptWindow.OpenWithNewState();
         ImGui.Separator();
 
-        foreach (var script in _scriptManager.Scripts.Values)
+        foreach (var script in _scriptManager.Scripts)
         {
             var loaded = script.Loaded;
             if (ImGui.Checkbox("##" + script.Filename, ref loaded))
@@ -82,8 +65,8 @@ internal class PrimaryWindow : Window
 
             ImGui.SameLine();
 
-            if (ImGui.Selectable(script.DisplayName, script.Filename == SelectedScriptName))
-                SelectedScriptName = script.Filename;
+            if (ImGui.Selectable(script.DisplayName, script == SelectedScript))
+                SelectedScript = script;
         }
 
         ImGui.EndChild();
@@ -131,6 +114,7 @@ internal class PrimaryWindow : Window
 
                 ImGui.PopItemWidth();
             }
+
             ImGui.EndMenuBar();
 
             var contents = SelectedScript.Contents;
@@ -142,6 +126,7 @@ internal class PrimaryWindow : Window
                 ImGui.OpenPopup("Delete?");
             DrawDeleteModal(SelectedScript);
         }
+
         ImGui.EndChild();
     }
 
@@ -151,7 +136,7 @@ internal class PrimaryWindow : Window
         if (!ImGui.BeginPopupModal("Delete?", ref pOpen, ImGuiWindowFlags.AlwaysAutoResize)) return;
         ImGui.Text($"The script `{script.DisplayName}` will be deleted.\nThis operation cannot be undone!\n\n");
         ImGui.Separator();
-            
+
         if (ImGui.Button("OK", new Vector2(120, 0)))
         {
             _scriptManager.Delete(script);
