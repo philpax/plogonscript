@@ -9,11 +9,9 @@ namespace PlogonScript;
 public class Configuration : IPluginConfiguration
 {
     public Dictionary<string, bool> AutoloadedScripts = new();
-
-    // the below exist just to make saving less cumbersome
+    public string? SelectedScript = string.Empty;
 
     [NonSerialized] private DalamudPluginInterface? pluginInterface;
-    public string? SelectedScript = string.Empty;
 
     public int Version { get; set; } = 0;
 
