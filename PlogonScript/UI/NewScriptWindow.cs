@@ -6,7 +6,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using ImGuiNET;
 
-namespace PlogonScript;
+namespace PlogonScript.UI;
 
 internal class NewScriptWindow : Window
 {

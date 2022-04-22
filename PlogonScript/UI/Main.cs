@@ -1,18 +1,16 @@
 ﻿using System;
 using Dalamud.Interface.Windowing;
 
-namespace PlogonScript;
+namespace PlogonScript.UI;
 
-internal class PluginUI : IDisposable
+internal class Main
 {
-    private readonly Configuration _configuration;
     private readonly ScriptManager _scriptManager;
     private readonly WindowSystem _windowSystem = new("PlogonScript.Windows");
 
-    public PluginUI(ScriptManager scriptManager, Configuration configuration)
+    public Main(ScriptManager scriptManager)
     {
         _scriptManager = scriptManager;
-        _configuration = configuration;
 
         var newScriptWindow = new NewScriptWindow(_scriptManager);
         _windowSystem.AddWindow(newScriptWindow);
@@ -22,10 +20,6 @@ internal class PluginUI : IDisposable
     }
 
     public PrimaryWindow PrimaryWindow { get; }
-
-    public void Dispose()
-    {
-    }
 
     public void Draw()
     {

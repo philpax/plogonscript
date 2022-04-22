@@ -3,7 +3,7 @@ using System.Numerics;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
-namespace PlogonScript;
+namespace PlogonScript.UI;
 
 internal class PrimaryWindow : Window
 {

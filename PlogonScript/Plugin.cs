@@ -2,6 +2,7 @@
 using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
+using PlogonScript.UI;
 
 namespace PlogonScript;
 
@@ -23,15 +24,15 @@ public sealed class Plugin : IDalamudPlugin
         Configuration.Initialize(PluginInterface);
 
         ScriptManager = new ScriptManager(PluginInterface, Configuration);
-        PluginUi = new PluginUI(ScriptManager, Configuration);
+        Main = new Main(ScriptManager);
 
         CommandManager.AddHandler(commandName, new CommandInfo(OnCommand)
         {
             HelpMessage = "Open the configuration for PlogonScript."
         });
 
-        PluginInterface.UiBuilder.Draw += DrawUI;
-        PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
+        PluginInterface.UiBuilder.Draw += Draw;
+        PluginInterface.UiBuilder.OpenConfigUi += OpenConfigUI;
 
         _framework.Update += Update;
     }
@@ -40,18 +41,17 @@ public sealed class Plugin : IDalamudPlugin
     private CommandManager CommandManager { get; }
 
     private Configuration Configuration { get; }
-    private PluginUI PluginUi { get; }
+    private Main Main { get; }
 
     private ScriptManager ScriptManager { get; }
     public string Name => "PlogonScript";
 
     public void Dispose()
     {
-        PluginInterface.UiBuilder.OpenConfigUi -= DrawConfigUI;
-        PluginInterface.UiBuilder.Draw -= DrawUI;
+        PluginInterface.UiBuilder.OpenConfigUi -= OpenConfigUI;
+        PluginInterface.UiBuilder.Draw -= Draw;
 
         ScriptManager.Dispose();
-        PluginUi.Dispose();
         CommandManager.RemoveHandler(commandName);
     }
 
@@ -62,17 +62,17 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnCommand(string command, string args)
     {
-        PluginUi.PrimaryWindow.IsOpen = true;
+        Main.PrimaryWindow.IsOpen = true;
     }
 
-    private void DrawUI()
+    private void Draw()
     {
-        PluginUi.Draw();
+        Main.Draw();
         ScriptManager.Draw();
     }
 
-    private void DrawConfigUI()
+    private void OpenConfigUI()
     {
-        PluginUi.PrimaryWindow.IsOpen = true;
+        Main.PrimaryWindow.IsOpen = true;
     }
 }
