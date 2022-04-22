@@ -5,10 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Dalamud;
 using Dalamud.Game.ClientState.Keys;
-using Dalamud.Game.Text;
-using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Logging;
-using Dalamud.Plugin;
 using Dalamud.Utility;
 using ImGuiNET;
 using Jint;
@@ -26,20 +23,16 @@ public readonly record struct ScriptMetadata(string Name, string Author)
 public class Script : IDisposable
 {
     private readonly Configuration _configuration;
-    private readonly DalamudPluginInterface _pluginInterface;
     private readonly List<Assembly> _whitelistAssemblies;
     private string _contents = string.Empty;
     private Engine? _engine;
 
-    public Script(string path, DalamudPluginInterface pluginInterface, Configuration configuration,
+    public Script(string path, Configuration configuration,
         List<Assembly> whitelistAssemblies, bool loadContents)
     {
-        _pluginInterface = pluginInterface;
         _configuration = configuration;
         _whitelistAssemblies = whitelistAssemblies;
-
-        ScriptServices.ChatGui.ChatMessageUnhandled += ChatGuiOnChatMessageUnhandled;
-
+        
         Path = path;
         if (loadContents)
             LoadContents();
@@ -62,18 +55,8 @@ public class Script : IDisposable
 
     public void Dispose()
     {
-        ScriptServices.ChatGui.ChatMessageUnhandled -= ChatGuiOnChatMessageUnhandled;
-        
         Unload(false);
         GC.SuppressFinalize(this);
-    }
-
-    private void ChatGuiOnChatMessageUnhandled(XivChatType type, uint senderId, SeString sender, SeString message)
-    {
-        GlobalEvents.OnChatMessageUnhandled.Call(this, new Dictionary<string, object>
-        {
-            {"type", type}, {"senderId", senderId}, {"sender", sender}, {"message", message}
-        });
     }
 
     public void LoadContents()

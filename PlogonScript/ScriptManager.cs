@@ -5,6 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Dalamud.Game.ClientState.Keys;
+using Dalamud.Game.Text;
+using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Plugin;
 
 namespace PlogonScript;
@@ -69,6 +71,8 @@ public class ScriptManager : IDisposable
         Directory.CreateDirectory(_scriptsPath);
         Resync();
 
+        ScriptServices.ChatGui.ChatMessageUnhandled += ChatGuiOnChatMessageUnhandled;
+
         _watcher = new FileSystemWatcher(_scriptsPath);
         _watcher.NotifyFilter = NotifyFilters.Attributes
                                 | NotifyFilters.CreationTime
@@ -103,6 +107,8 @@ public class ScriptManager : IDisposable
 
     public void Dispose()
     {
+        ScriptServices.ChatGui.ChatMessageUnhandled -= ChatGuiOnChatMessageUnhandled;
+
         _watcher.Dispose();
 
         foreach (var (_, script) in Scripts) script.Dispose();
@@ -140,7 +146,7 @@ public class ScriptManager : IDisposable
     private Script CreateScript(string scriptName, bool loadContents)
     {
         var scriptPath = Path.Combine(_scriptsPath, scriptName);
-        return new Script(scriptPath, _pluginInterface, _configuration,
+        return new Script(scriptPath, _configuration,
             _whitelistAssemblies, loadContents);
     }
 
@@ -179,6 +185,14 @@ public class ScriptManager : IDisposable
         }
 
         CallEvent(GlobalEvents.OnUpdate);
+    }
+
+    private void ChatGuiOnChatMessageUnhandled(XivChatType type, uint senderId, SeString sender, SeString message)
+    {
+        CallEvent(GlobalEvents.OnChatMessageUnhandled, new Dictionary<string, object>
+        {
+            {"type", type}, {"senderId", senderId}, {"sender", sender}, {"message", message}
+        });
     }
 
     public void Create(string filename, string name, string author, IEnumerable<GlobalEvent> globalEvents)
