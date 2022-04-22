@@ -56,6 +56,7 @@ public class ScriptContainer
         _configuration = configuration;
         _prevKeyState = Services.KeyState.GetValidVirtualKeys().ToHashSet().ToDictionary(a => a, _ => false);
 
+        Services.ChatGui.ChatMessageHandled += ChatGuiOnChatMessageHandled;
         Services.ChatGui.ChatMessageUnhandled += ChatGuiOnChatMessageUnhandled;
     }
 
@@ -89,6 +90,14 @@ public class ScriptContainer
     public void Draw()
     {
         CallEvent(Events.OnDraw);
+    }
+
+    private void ChatGuiOnChatMessageHandled(XivChatType type, uint senderId, SeString sender, SeString message)
+    {
+        CallEvent(Events.OnChatMessageHandled, new Dictionary<string, object>
+        {
+            {"type", type}, {"senderId", senderId}, {"sender", sender}, {"message", message}
+        });
     }
 
     private void ChatGuiOnChatMessageUnhandled(XivChatType type, uint senderId, SeString sender, SeString message)

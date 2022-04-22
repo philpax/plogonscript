@@ -16,6 +16,13 @@ public static class Events
     public static readonly Event OnKeyUp = new("onKeyUp",
         new Dictionary<string, Type> {{"key", typeof(VirtualKey)}});
 
+    public static readonly Event OnChatMessageHandled = new("onChatMessageHandled",
+        new Dictionary<string, Type>
+        {
+            {"type", typeof(XivChatType)}, {"senderId", typeof(uint)}, {"sender", typeof(SeString)},
+            {"message", typeof(SeString)}
+        });
+
     public static readonly Event OnChatMessageUnhandled = new("onChatMessageUnhandled",
         new Dictionary<string, Type>
         {
@@ -23,5 +30,6 @@ public static class Events
             {"message", typeof(SeString)}
         });
 
-    public static readonly Event[] AllEvents = {OnLoad, OnUnload, OnDraw, OnUpdate, OnChatMessageUnhandled};
+    public static readonly Event[] AllEvents =
+        {OnLoad, OnUnload, OnDraw, OnUpdate, OnChatMessageHandled, OnChatMessageUnhandled};
 }
