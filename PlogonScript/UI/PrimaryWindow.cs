@@ -72,7 +72,7 @@ internal class PrimaryWindow : Window
         foreach (var script in _scriptManager.Scripts.Values)
         {
             var loaded = script.Loaded;
-            if (ImGui.Checkbox("", ref loaded))
+            if (ImGui.Checkbox("##" + script.Filename, ref loaded))
             {
                 if (loaded)
                     script.Load();
