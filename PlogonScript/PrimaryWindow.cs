@@ -38,10 +38,8 @@ internal class PrimaryWindow : Window
         }
     }
 
-    public override void OnOpen()
+    public override void Update()
     {
-        base.OnOpen();
-
         if (SelectedScriptName == null || !_scriptManager.Scripts.ContainsKey(SelectedScriptName))
             SelectedScriptName = _scriptManager.Scripts.Keys.FirstOrDefault();
     }
