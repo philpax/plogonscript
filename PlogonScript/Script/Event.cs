@@ -5,9 +5,9 @@ using System.Security;
 
 namespace PlogonScript.Script;
 
-public class GlobalEvent
+public class Event
 {
-    public GlobalEvent(string name, Dictionary<string, Type>? arguments = null)
+    public Event(string name, Dictionary<string, Type>? arguments = null)
     {
         Name = name;
         Arguments = arguments ?? new Dictionary<string, Type>();

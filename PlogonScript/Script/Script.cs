@@ -105,7 +105,7 @@ public class Script : IDisposable
             Initialize(_engine);
 
             _engine.Execute(_contents);
-            GlobalEvents.OnLoad.Call(this);
+            Events.OnLoad.Call(this);
 
             _configuration.AutoloadedScripts[Filename] = true;
             _configuration.Save();
@@ -145,7 +145,7 @@ public class Script : IDisposable
 
         if (!Loaded) return;
 
-        GlobalEvents.OnUnload.Call(this);
+        Events.OnUnload.Call(this);
         _engine = null;
     }
 

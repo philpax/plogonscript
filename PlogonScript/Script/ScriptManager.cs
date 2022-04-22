@@ -129,7 +129,7 @@ public class ScriptManager : IDisposable
         _scriptContainer.Draw();
     }
 
-    public void Create(string filename, string name, string author, IEnumerable<GlobalEvent> globalEvents)
+    public void Create(string filename, string name, string author, IEnumerable<Event> globalEvents)
     {
         var script = MakeScript(filename, false);
         script.Metadata = new ScriptMetadata(name, author);

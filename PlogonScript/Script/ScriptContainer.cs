@@ -77,26 +77,26 @@ public class ScriptContainer
             _prevKeyState[key] = newState;
 
             if (keyUp)
-                CallEvent(GlobalEvents.OnKeyUp, new Dictionary<string, object> {{"key", key}});
+                CallEvent(Events.OnKeyUp, new Dictionary<string, object> {{"key", key}});
         }
 
-        CallEvent(GlobalEvents.OnUpdate);
+        CallEvent(Events.OnUpdate);
     }
 
     public void Draw()
     {
-        CallEvent(GlobalEvents.OnDraw);
+        CallEvent(Events.OnDraw);
     }
 
     private void ChatGuiOnChatMessageUnhandled(XivChatType type, uint senderId, SeString sender, SeString message)
     {
-        CallEvent(GlobalEvents.OnChatMessageUnhandled, new Dictionary<string, object>
+        CallEvent(Events.OnChatMessageUnhandled, new Dictionary<string, object>
         {
             {"type", type}, {"senderId", senderId}, {"sender", sender}, {"message", message}
         });
     }
 
-    private void CallEvent(GlobalEvent evt, Dictionary<string, object>? arguments = null)
+    private void CallEvent(Event evt, Dictionary<string, object>? arguments = null)
     {
         foreach (var script in Scripts.Values)
             script.CallGlobalFunction(evt.Name, arguments);

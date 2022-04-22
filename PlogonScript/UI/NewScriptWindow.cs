@@ -15,7 +15,7 @@ internal class NewScriptWindow : Window
     private string _author = string.Empty;
     private string _filenameOverride = string.Empty;
     private string _name = string.Empty;
-    private Dictionary<GlobalEvent, bool> _generateEventHandlers = new();
+    private Dictionary<Event, bool> _generateEventHandlers = new();
 
     public NewScriptWindow(ScriptManager scriptManager) : base("New Script")
     {
@@ -44,7 +44,7 @@ internal class NewScriptWindow : Window
     public void OpenWithNewState()
     {
         _filenameOverride = _name = _author = "";
-        _generateEventHandlers = GlobalEvents.Events.ToDictionary(evt => evt, _ => false);
+        _generateEventHandlers = Events.AllEvents.ToDictionary(evt => evt, _ => false);
         IsOpen = true;
     }
 
