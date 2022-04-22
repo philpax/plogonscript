@@ -1,6 +1,6 @@
 //m:{"Name":"Stopwatch","Author":"Philpax"}
-const stopwatch = new System.Diagnostics.Stopwatch();
 let visible = false;
+const stopwatch = new System.Diagnostics.Stopwatch();
 
 function onKeyUp({ key }) {
   if (key == VirtualKey.F4) {
