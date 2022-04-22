@@ -1,30 +1,21 @@
 //m:{"Name":"Stopwatch","Author":"Philpax"}
-let stopwatch = new System.Diagnostics.Stopwatch();
+const stopwatch = new System.Diagnostics.Stopwatch();
 let visible = false;
 
-const key = VirtualKey.F4;
-let keyWasPressed = false;
-
-function onUpdate() {
-  if (!KeyState[key] && keyWasPressed) {
+function onKeyUp({ key }) {
+  if (key == VirtualKey.F4) {
     visible = !visible;
   }
-  keyWasPressed = KeyState[key];
 }
 
 function onDraw() {
   if (!visible) return;
 
   if (ImGui.Begin("Stopwatch")) {
+    const Format = "{0:00}:{1:00}:{2:00}.{3:00}";
     const { Hours, Minutes, Seconds, Milliseconds } = stopwatch.Elapsed;
     ImGui.Text(
-      System.String.Format(
-        "{0:00}:{1:00}:{2:00}.{3:00}",
-        Hours,
-        Minutes,
-        Seconds,
-        Milliseconds / 10
-      )
+      System.String.Format(Format, Hours, Minutes, Seconds, Milliseconds / 10)
     );
 
     if (!stopwatch.IsRunning) {
