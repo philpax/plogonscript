@@ -24,6 +24,8 @@ public sealed class Plugin : IDalamudPlugin
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         Configuration.Initialize(PluginInterface);
 
+        PluginInterface.Create<Services>();
+
         ScriptManager = new ScriptManager(PluginInterface, Configuration);
         Main = new Main(ScriptManager);
 

@@ -129,7 +129,7 @@ public class Script : IDisposable
             engine.SetValue(type.Name, TypeReference.CreateTypeReference(engine, type));
 
         // Inject all of our services in
-        Services.InjectIntoEngine(engine);
+        Bindings.Services.Inject(engine);
 
         // Provide an alternative console implementation
         engine.SetValue("console", new Bindings.Console(DisplayName));

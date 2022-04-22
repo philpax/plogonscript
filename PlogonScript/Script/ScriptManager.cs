@@ -57,7 +57,6 @@ public class ScriptManager : IDisposable
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
-        _pluginInterface.Create<Services>();
 
         _prevKeyState = Services.KeyState.GetValidVirtualKeys().ToHashSet().ToDictionary(a => a, _ => false);
 
