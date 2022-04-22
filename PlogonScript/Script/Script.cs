@@ -10,6 +10,7 @@ using Dalamud.Utility;
 using ImGuiNET;
 using Jint;
 using Jint.Native;
+using Jint.Runtime;
 using Jint.Runtime.Interop;
 using Newtonsoft.Json;
 
@@ -26,6 +27,10 @@ public class Script : IDisposable
     private readonly List<Assembly> _whitelistAssemblies;
     private string _contents = string.Empty;
     private Engine? _engine;
+
+    private List<DateTime> _errors = new();
+    private const int MaxErrorCount = 5;
+    private const double SecondsBeforeOldErrorsArePurged = 30.0f;
 
     public Script(string path, Configuration configuration,
         List<Assembly> whitelistAssemblies, bool loadContents)
@@ -150,6 +155,7 @@ public class Script : IDisposable
 
         Events.OnUnload.Call(this);
         _engine = null;
+        _errors.Clear();
     }
 
     internal void CallGlobalFunction(string methodName, Dictionary<string, object>? arguments = null)
@@ -165,9 +171,30 @@ public class Script : IDisposable
         {
             method.Call(JsValue.FromObject(_engine, arguments));
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            PluginLog.Error("error: {0}", e);
+            HandleError(methodName, arguments, exception);
         }
+    }
+
+    private void HandleError(string methodName, Dictionary<string, object>? arguments, Exception exception)
+    {
+        object message = exception;
+        if (exception is JavaScriptException jse)
+        {
+            message = $"{jse.Message} ({Filename}:{jse.Location.Start.Line}:{jse.Location.Start.Column})";
+        }
+
+        PluginLog.Error("Error while calling {0:l}:{1:l}({2}): {3:l}", DisplayName, methodName, arguments!, message);
+
+        // this is a lazy way to do it, but N is small, so it's fine
+        _errors.Add(DateTime.Now);
+        _errors = _errors
+            .Where(dt => dt >= DateTime.Now - TimeSpan.FromSeconds(SecondsBeforeOldErrorsArePurged))
+            .ToList();
+        if (_errors.Count < MaxErrorCount) return;
+
+        PluginLog.Error("The plugin {0} was unloaded due to multiple errors in a short span of time.", DisplayName);
+        Unload(false);
     }
 }
