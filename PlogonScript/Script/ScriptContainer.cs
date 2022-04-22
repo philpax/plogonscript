@@ -63,6 +63,7 @@ public class ScriptContainer
     public void Dispose()
     {
         Services.ChatGui.ChatMessageUnhandled -= ChatGuiOnChatMessageUnhandled;
+        Services.ChatGui.ChatMessageHandled -= ChatGuiOnChatMessageHandled;
 
         foreach (var (_, script) in Scripts) script.Dispose();
         _scripts.Clear();
