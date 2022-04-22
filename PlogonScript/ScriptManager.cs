@@ -150,6 +150,14 @@ public class ScriptManager : IDisposable
             _pendingResync = false;
         }
 
+
+    public void Delete(Script script)
+    {
+        var path = script.Path;
+        Scripts.Remove(script.Filename);
+        script.Dispose();
+        File.Delete(path);
+    }
         foreach (var script in Scripts.Values)
             script.Call("onUpdate");
     }

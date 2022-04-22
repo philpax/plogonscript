@@ -92,6 +92,7 @@ internal class PrimaryWindow : Window
         ImGui.BeginChild("item view", new Vector2(0, 0), true, ImGuiWindowFlags.MenuBar);
         if (SelectedScript != null)
         {
+            bool openDelete = false;
             if (ImGui.BeginMenuBar())
             {
                 string name = SelectedScript.Metadata.Name, author = SelectedScript.Metadata.Author;
@@ -123,17 +124,45 @@ internal class PrimaryWindow : Window
                     if (ImGui.MenuItem("Load")) SelectedScript.Load();
                 }
 
+                if (ImGui.MenuItem("Delete"))
+                    openDelete = true;
+
                 ImGui.PopItemWidth();
             }
-
             ImGui.EndMenuBar();
 
             var contents = SelectedScript.Contents;
             ImGui.InputTextMultiline("##source", ref contents, 16384,
                 new Vector2(-float.Epsilon, -float.Epsilon), ImGuiInputTextFlags.AllowTabInput);
             SelectedScript.Contents = contents;
+
+            if (openDelete)
+                ImGui.OpenPopup("Delete?");
+            DrawDeleteModal(SelectedScript);
+        }
+        ImGui.EndChild();
+    }
+
+    private void DrawDeleteModal(Script script)
+    {
+        var pOpen = true;
+        if (!ImGui.BeginPopupModal("Delete?", ref pOpen, ImGuiWindowFlags.AlwaysAutoResize)) return;
+        ImGui.Text($"The script `{script.DisplayName}` will be deleted.\nThis operation cannot be undone!\n\n");
+        ImGui.Separator();
+            
+        if (ImGui.Button("OK", new Vector2(120, 0)))
+        {
+            _scriptManager.Delete(script);
+            ImGui.CloseCurrentPopup();
         }
 
-        ImGui.EndChild();
+        ImGui.SetItemDefaultFocus();
+        ImGui.SameLine();
+        if (ImGui.Button("Cancel", new Vector2(120, 0)))
+        {
+            ImGui.CloseCurrentPopup();
+        }
+
+        ImGui.EndPopup();
     }
 }

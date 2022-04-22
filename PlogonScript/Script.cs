@@ -29,24 +29,22 @@ public class Script : IDisposable
     private string _contents = string.Empty;
     private Engine? _engine;
 
-    public Script(string scriptPath, DalamudPluginInterface pluginInterface, Configuration configuration,
-        List<Assembly> whitelistAssemblies)
+    public Script(string path, DalamudPluginInterface pluginInterface, Configuration configuration,
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
         _whitelistAssemblies = whitelistAssemblies;
         _pluginInterface.Create<ScriptServices>();
 
-        ScriptPath = scriptPath;
-        LoadContents();
+        Path = path;
     }
 
     public ScriptMetadata Metadata { get; set; } = new("", "");
 
-    public string Filename => Path.GetFileName(ScriptPath);
+    public string Filename => System.IO.Path.GetFileName(Path);
     public string DisplayName => Metadata.Name.Length > 0 ? Metadata.Name : Filename;
 
-    private string ScriptPath { get; }
+    public string Path { get; }
 
     public bool Loaded => _engine != null;
 
@@ -87,7 +85,7 @@ public class Script : IDisposable
             contents = $"//m:{metadata}\n{contents}";
         }
 
-        File.WriteAllText(ScriptPath, contents);
+        File.WriteAllText(Path, contents);
     }
 
     public void Load()
