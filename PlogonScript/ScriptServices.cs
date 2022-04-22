@@ -19,7 +19,6 @@ using Dalamud.Game.Gui.PartyFinder;
 using Dalamud.Game.Gui.Toast;
 using Dalamud.Game.Network;
 using Dalamud.IoC;
-using Dalamud.Plugin;
 using Jint;
 
 namespace PlogonScript;

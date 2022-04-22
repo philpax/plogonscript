@@ -32,6 +32,7 @@ public class Script : IDisposable
     private Engine? _engine;
 
     public Script(string path, DalamudPluginInterface pluginInterface, Configuration configuration,
+        List<Assembly> whitelistAssemblies, bool loadContents)
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
@@ -40,6 +41,8 @@ public class Script : IDisposable
         ScriptServices.ChatGui.ChatMessageUnhandled += ChatGuiOnChatMessageUnhandled;
 
         Path = path;
+        if (loadContents)
+            LoadContents();
     }
 
     public ScriptMetadata Metadata { get; set; } = new("", "");

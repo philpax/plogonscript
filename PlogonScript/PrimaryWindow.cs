@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Interface.Windowing;
@@ -8,13 +7,13 @@ namespace PlogonScript;
 
 internal class PrimaryWindow : Window
 {
-    private readonly Configuration _configuration;
+    private readonly NewScriptWindow _newScriptWindow;
     private readonly ScriptManager _scriptManager;
 
-    public PrimaryWindow(ScriptManager scriptManager, Configuration configuration) : base("PlogonScript")
+    public PrimaryWindow(ScriptManager scriptManager, NewScriptWindow newScriptWindow) : base("PlogonScript")
     {
         _scriptManager = scriptManager;
-        _configuration = configuration;
+        _newScriptWindow = newScriptWindow;
 
         Size = new Vector2(1200, 675);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -23,8 +22,8 @@ internal class PrimaryWindow : Window
 
     private string? SelectedScriptName
     {
-        get => _configuration.SelectedScript;
-        set => _configuration.SelectedScript = value;
+        get => _scriptManager.SelectedScriptName;
+        set => _scriptManager.SelectedScriptName = value;
     }
 
     private Script? SelectedScript
@@ -66,9 +65,12 @@ internal class PrimaryWindow : Window
     {
         ImGui.BeginChild("left pane", new Vector2(220, 0), true);
 
+        if (ImGui.Button("New Script", new Vector2(-float.Epsilon, 30.0f))) _newScriptWindow.OpenWithNewState();
+        ImGui.Separator();
+
         foreach (var script in _scriptManager.Scripts.Values)
         {
-            bool loaded = script.Loaded;
+            var loaded = script.Loaded;
             if (ImGui.Checkbox("", ref loaded))
             {
                 if (loaded)
@@ -76,6 +78,7 @@ internal class PrimaryWindow : Window
                 else
                     script.Unload(true);
             }
+
             ImGui.SameLine();
 
             if (ImGui.Selectable(script.DisplayName, script.Filename == SelectedScriptName))

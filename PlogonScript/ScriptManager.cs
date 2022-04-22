@@ -93,6 +93,12 @@ public class ScriptManager : IDisposable
                 script.Load();
     }
 
+    public string? SelectedScriptName
+    {
+        get => _configuration.SelectedScript;
+        set => _configuration.SelectedScript = value;
+    }
+
     public Dictionary<string, Script> Scripts { get; } = new();
 
     public void Dispose()
@@ -122,12 +128,7 @@ public class ScriptManager : IDisposable
 
         var scriptsToRemove = new HashSet<string>(scriptsHere.AsEnumerable());
         scriptsToRemove.ExceptWith(scriptsOnDisk.AsEnumerable());
-        foreach (var scriptName in scriptsToAdd)
-        {
-            var script = new Script(Path.Combine(_scriptsPath, scriptName), _pluginInterface, _configuration,
-                _whitelistAssemblies);
-            Scripts.Add(scriptName, script);
-        }
+        foreach (var scriptName in scriptsToAdd) Scripts.Add(scriptName, CreateScript(scriptName, true));
 
         foreach (var scriptName in scriptsToRemove)
         {
@@ -135,6 +136,12 @@ public class ScriptManager : IDisposable
             script?.Dispose();
         }
     }
+
+    private Script CreateScript(string scriptName, bool loadContents)
+    {
+        var scriptPath = Path.Combine(_scriptsPath, scriptName);
+        return new Script(scriptPath, _pluginInterface, _configuration,
+            _whitelistAssemblies, loadContents);
     }
 
     public void OpenFolder()
@@ -172,6 +179,32 @@ public class ScriptManager : IDisposable
         }
 
         CallEvent(GlobalEvents.OnUpdate);
+    }
+
+    public void Create(string filename, string name, string author, IEnumerable<GlobalEvent> globalEvents)
+    {
+        var script = CreateScript(filename, false);
+        script.Metadata = new ScriptMetadata(name, author);
+        foreach (var globalEvent in globalEvents)
+        {
+            var contentsBuilder = new StringBuilder();
+            contentsBuilder.Append("function ");
+            contentsBuilder.Append(globalEvent.Name);
+            contentsBuilder.Append('(');
+            if (globalEvent.Arguments.Count > 0)
+            {
+                contentsBuilder.Append('{');
+                contentsBuilder.Append(string.Join(", ", globalEvent.Arguments.Keys));
+                contentsBuilder.Append('}');
+            }
+
+            contentsBuilder.Append(") {\n}\n\n");
+            script.Contents += contentsBuilder.ToString();
+        }
+
+        script.SaveContents();
+        Scripts.Add(filename, script);
+        SelectedScriptName = filename;
     }
 
     public void Delete(Script script)

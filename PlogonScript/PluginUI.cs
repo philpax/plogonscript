@@ -13,7 +13,11 @@ internal class PluginUI : IDisposable
     {
         _scriptManager = scriptManager;
         _configuration = configuration;
-        PrimaryWindow = new PrimaryWindow(_scriptManager, _configuration);
+
+        var newScriptWindow = new NewScriptWindow(_scriptManager);
+        _windowSystem.AddWindow(newScriptWindow);
+
+        PrimaryWindow = new PrimaryWindow(_scriptManager, newScriptWindow);
         _windowSystem.AddWindow(PrimaryWindow);
     }
 
