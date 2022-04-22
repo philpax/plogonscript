@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 
-namespace PlogonScript;
+namespace PlogonScript.Script;
 
 public class GlobalEvent
 {

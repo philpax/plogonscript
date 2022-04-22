@@ -4,7 +4,7 @@ using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 
-namespace PlogonScript;
+namespace PlogonScript.Script;
 
 public static class GlobalEvents
 {

@@ -2,6 +2,7 @@
 using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
+using PlogonScript.Script;
 using PlogonScript.UI;
 
 namespace PlogonScript;

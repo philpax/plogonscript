@@ -9,7 +9,7 @@ using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Plugin;
 
-namespace PlogonScript;
+namespace PlogonScript.Script;
 
 public class ScriptManager : IDisposable
 {
@@ -229,7 +229,7 @@ public class ScriptManager : IDisposable
         File.Delete(path);
     }
 
-    internal void CallEvent(GlobalEvent evt, Dictionary<string, object>? arguments = null)
+    private void CallEvent(GlobalEvent evt, Dictionary<string, object>? arguments = null)
     {
         foreach (var script in Scripts.Values)
             script.CallGlobalFunction(evt.Name, arguments);

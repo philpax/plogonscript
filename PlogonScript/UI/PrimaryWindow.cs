@@ -2,6 +2,7 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
+using PlogonScript.Script;
 
 namespace PlogonScript.UI;
 
@@ -26,7 +27,7 @@ internal class PrimaryWindow : Window
         set => _scriptManager.SelectedScriptName = value;
     }
 
-    private Script? SelectedScript
+    private Script.Script? SelectedScript
     {
         get
         {
@@ -144,7 +145,7 @@ internal class PrimaryWindow : Window
         ImGui.EndChild();
     }
 
-    private void DrawDeleteModal(Script script)
+    private void DrawDeleteModal(Script.Script script)
     {
         var pOpen = true;
         if (!ImGui.BeginPopupModal("Delete?", ref pOpen, ImGuiWindowFlags.AlwaysAutoResize)) return;

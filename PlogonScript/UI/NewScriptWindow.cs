@@ -5,6 +5,7 @@ using System.Numerics;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using ImGuiNET;
+using PlogonScript.Script;
 
 namespace PlogonScript.UI;
 

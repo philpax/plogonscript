@@ -13,7 +13,7 @@ using Jint.Native;
 using Jint.Runtime.Interop;
 using Newtonsoft.Json;
 
-namespace PlogonScript;
+namespace PlogonScript.Script;
 
 public readonly record struct ScriptMetadata(string Name, string Author)
 {
@@ -102,7 +102,7 @@ public class Script : IDisposable
                 options.Interop.AllowedAssemblies = _whitelistAssemblies;
             });
 
-            InitialiseGlobalState(_engine);
+            Initialize(_engine);
 
             _engine.Execute(_contents);
             GlobalEvents.OnLoad.Call(this);
@@ -117,7 +117,7 @@ public class Script : IDisposable
         }
     }
 
-    private void InitialiseGlobalState(Engine engine)
+    private void Initialize(Engine engine)
     {
         engine.SetValue("Dalamud", new NamespaceReference(engine, "Dalamud"));
         engine.SetValue("PluginLog", TypeReference.CreateTypeReference(engine, typeof(PluginLog)));
@@ -132,7 +132,7 @@ public class Script : IDisposable
         Services.InjectIntoEngine(engine);
 
         // Provide an alternative console implementation
-        engine.SetValue("console", new ScriptConsole(DisplayName));
+        engine.SetValue("console", new Bindings.Console(DisplayName));
     }
 
     public void Unload(bool disableAutoload)

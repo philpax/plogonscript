@@ -2,13 +2,13 @@ using System.Linq;
 using Dalamud.Logging;
 using Jint.Native;
 
-namespace PlogonScript;
+namespace PlogonScript.Script.Bindings;
 
-internal class ScriptConsole
+internal class Console
 {
     private readonly string _displayName;
 
-    public ScriptConsole(string displayName)
+    public Console(string displayName)
     {
         _displayName = displayName;
     }
