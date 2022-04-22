@@ -29,10 +29,7 @@ internal class NewScriptWindow : Window
     private string GeneratedFilename => $"{Sanitise(_author, "NoAuthor")}-{Sanitise(_name, "NoName")}.js";
     private string Filename => _filenameOverride.IsNullOrEmpty() ? GeneratedFilename : _filenameOverride;
 
-    private bool Valid => Filename.Length > 0 &&
-                          Filename.EndsWith(".js") &&
-                          Filename == Path.GetFileName(Filename) &&
-                          Filename.IndexOfAny(Path.GetInvalidFileNameChars()) < 0 &&
+    private bool Valid => _scriptManager.IsValidScriptFilename(Filename) &&
                           _name.Length > 0 &&
                           _author.Length > 0;
 

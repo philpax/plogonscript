@@ -95,9 +95,21 @@ public class ScriptManager : IDisposable
             _scriptContainer.Remove(script!);
     }
 
-    private Script MakeScript(string scriptName, bool loadContents)
+    public bool IsValidScriptFilename(string filename) =>
+        filename.Length > 0 &&
+        filename.EndsWith(".js") &&
+        filename == Path.GetFileName(filename) &&
+        filename.IndexOfAny(Path.GetInvalidFileNameChars()) < 0 &&
+        !File.Exists(GenerateScriptPath(filename));
+
+    private Script MakeScript(string filename, bool loadContents)
     {
-        return _scriptContainer.MakeScript(Path.Combine(_scriptsPath, scriptName), loadContents);
+        return _scriptContainer.MakeScript(GenerateScriptPath(filename), loadContents);
+    }
+
+    private string GenerateScriptPath(string filename)
+    {
+        return Path.Combine(_scriptsPath, filename);
     }
 
     public void OpenFolder()
