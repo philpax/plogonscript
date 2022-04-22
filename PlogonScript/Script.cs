@@ -5,6 +5,8 @@ using System.Linq;
 using System.Reflection;
 using Dalamud;
 using Dalamud.Game.ClientState.Keys;
+using Dalamud.Game.Text;
+using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using Dalamud.Utility;
@@ -34,7 +36,8 @@ public class Script : IDisposable
         _pluginInterface = pluginInterface;
         _configuration = configuration;
         _whitelistAssemblies = whitelistAssemblies;
-        _pluginInterface.Create<ScriptServices>();
+
+        ScriptServices.ChatGui.ChatMessageUnhandled += ChatGuiOnChatMessageUnhandled;
 
         Path = path;
     }
@@ -56,8 +59,18 @@ public class Script : IDisposable
 
     public void Dispose()
     {
+        ScriptServices.ChatGui.ChatMessageUnhandled -= ChatGuiOnChatMessageUnhandled;
+        
         Unload(false);
         GC.SuppressFinalize(this);
+    }
+
+    private void ChatGuiOnChatMessageUnhandled(XivChatType type, uint senderId, SeString sender, SeString message)
+    {
+        GlobalEvents.OnChatMessageUnhandled.Call(this, new Dictionary<string, object>
+        {
+            {"type", type}, {"senderId", senderId}, {"sender", sender}, {"message", message}
+        });
     }
 
     public void LoadContents()
