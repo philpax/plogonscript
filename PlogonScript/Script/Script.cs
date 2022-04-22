@@ -32,7 +32,7 @@ public class Script : IDisposable
     {
         _configuration = configuration;
         _whitelistAssemblies = whitelistAssemblies;
-        
+
         Path = path;
         if (loadContents)
             LoadContents();
@@ -133,6 +133,9 @@ public class Script : IDisposable
 
         // Provide an alternative console implementation
         engine.SetValue("console", new Bindings.Console(DisplayName));
+
+        // misc
+        engine.SetValue("UIHelpers", TypeReference.CreateTypeReference(engine, typeof(Bindings.UIHelpers)));
     }
 
     public void Unload(bool disableAutoload)

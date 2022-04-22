@@ -11,7 +11,7 @@ function onKeyUp({ key }) {
 function onDraw() {
   if (!visible) return;
 
-  if (ImGui.Begin("Stopwatch")) {
+  UIHelpers.withWindow("Stopwatch", () => {
     const Format = "{0:00}:{1:00}:{2:00}.{3:00}";
     const { Hours, Minutes, Seconds, Milliseconds } = stopwatch.Elapsed;
     ImGui.Text(
@@ -25,6 +25,5 @@ function onDraw() {
     }
     ImGui.SameLine();
     if (ImGui.Button("Reset")) stopwatch.Reset();
-  }
-  ImGui.End();
+  });
 }
