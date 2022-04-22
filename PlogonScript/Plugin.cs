@@ -61,6 +61,7 @@ public sealed class Plugin : IDalamudPlugin
     private void Update(Framework framework)
     {
         ScriptManager.Update();
+        Main.Update();
     }
 
     private void OnCommand(string command, string args)
@@ -70,8 +71,8 @@ public sealed class Plugin : IDalamudPlugin
 
     private void Draw()
     {
-        Main.Draw();
         ScriptManager.Draw();
+        Main.Draw();
     }
 
     private void OpenConfigUI()

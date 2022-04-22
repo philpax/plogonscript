@@ -29,6 +29,7 @@ public class Script : IDisposable
     private Engine? _engine;
 
     private List<DateTime> _errors = new();
+    private List<(string, string)> _displayErrors = new();
     private const int MaxErrorCount = 5;
     private const double SecondsBeforeOldErrorsArePurged = 30.0f;
 
@@ -91,6 +92,9 @@ public class Script : IDisposable
 
     public void Load()
     {
+        _errors.Clear();
+        _displayErrors.Clear();
+        
         try
         {
             if (_contents.IsNullOrEmpty())
@@ -155,7 +159,6 @@ public class Script : IDisposable
 
         Events.OnUnload.Call(this);
         _engine = null;
-        _errors.Clear();
     }
 
     internal void CallGlobalFunction(string methodName, Dictionary<string, object>? arguments = null)
@@ -177,6 +180,18 @@ public class Script : IDisposable
         }
     }
 
+    internal (string, string)[] DrainErrorsForDisplay()
+    {
+        var results = _displayErrors.ToArray();
+        _displayErrors.Clear();
+        return results;
+    }
+
+    private void AddError(string title, string message)
+    {
+        _displayErrors.Add((title, message));
+    }
+
     private void HandleError(string methodName, Dictionary<string, object>? arguments, Exception exception)
     {
         object message = exception;
@@ -194,7 +209,9 @@ public class Script : IDisposable
             .ToList();
         if (_errors.Count < MaxErrorCount) return;
 
-        PluginLog.Error("The plugin {0} was unloaded due to multiple errors in a short span of time.", DisplayName);
+        PluginLog.Error("The script {0} was unloaded due to multiple errors in a short span of time.", DisplayName);
+        AddError($"{DisplayName} unloaded",
+            "The script was unloaded due to multiple errors in a short span of time.");
         Unload(false);
     }
 }
