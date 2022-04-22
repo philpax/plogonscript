@@ -57,9 +57,9 @@ public class ScriptManager : IDisposable
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
-        _pluginInterface.Create<ScriptServices>();
+        _pluginInterface.Create<Services>();
 
-        _prevKeyState = ScriptServices.KeyState.GetValidVirtualKeys().ToHashSet().ToDictionary(a => a, _ => false);
+        _prevKeyState = Services.KeyState.GetValidVirtualKeys().ToHashSet().ToDictionary(a => a, _ => false);
 
         _scriptsPath = Path.Combine(_pluginInterface.AssemblyLocation.Directory?.FullName!, "scripts");
 
@@ -71,7 +71,7 @@ public class ScriptManager : IDisposable
         Directory.CreateDirectory(_scriptsPath);
         Resync();
 
-        ScriptServices.ChatGui.ChatMessageUnhandled += ChatGuiOnChatMessageUnhandled;
+        Services.ChatGui.ChatMessageUnhandled += ChatGuiOnChatMessageUnhandled;
 
         _watcher = new FileSystemWatcher(_scriptsPath);
         _watcher.NotifyFilter = NotifyFilters.Attributes
@@ -107,7 +107,7 @@ public class ScriptManager : IDisposable
 
     public void Dispose()
     {
-        ScriptServices.ChatGui.ChatMessageUnhandled -= ChatGuiOnChatMessageUnhandled;
+        Services.ChatGui.ChatMessageUnhandled -= ChatGuiOnChatMessageUnhandled;
 
         _watcher.Dispose();
 
@@ -176,7 +176,7 @@ public class ScriptManager : IDisposable
         // Update the KeyUp state.
         foreach (var key in _prevKeyState.Keys)
         {
-            var newState = ScriptServices.KeyState[key];
+            var newState = Services.KeyState[key];
             var keyUp = !newState && _prevKeyState[key];
             _prevKeyState[key] = newState;
 

@@ -23,7 +23,7 @@ using Jint;
 
 namespace PlogonScript;
 
-public class ScriptServices
+public class Services
 {
     [PluginService]
     [RequiredVersion("1.0")]
