@@ -57,7 +57,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private void Update(Framework framework)
     {
-        ScriptManager.Update(framework);
+        ScriptManager.Update();
     }
 
     private void OnCommand(string command, string args)

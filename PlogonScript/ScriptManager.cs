@@ -137,7 +137,7 @@ public class ScriptManager : IDisposable
             script.Call("onDraw");
     }
 
-    public void Update(Framework framework)
+    public void Update()
     {
         foreach (var load in _pendingLoads)
             if (Scripts.TryGetValue(load, out var script))
