@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Dalamud.Game;
+using System.Text;
+using Dalamud.Game.ClientState.Keys;
 using Dalamud.Plugin;
 
 namespace PlogonScript;
@@ -48,10 +49,16 @@ public class ScriptManager : IDisposable
     };
 
     private bool _pendingResync;
+    private readonly Dictionary<VirtualKey, bool> _prevKeyState;
+
     public ScriptManager(DalamudPluginInterface pluginInterface, Configuration configuration)
     {
         _pluginInterface = pluginInterface;
         _configuration = configuration;
+        _pluginInterface.Create<ScriptServices>();
+
+        _prevKeyState = ScriptServices.KeyState.GetValidVirtualKeys().ToHashSet().ToDictionary(a => a, _ => false);
+
         _scriptsPath = Path.Combine(_pluginInterface.AssemblyLocation.Directory?.FullName!, "scripts");
 
         // Load all of our whitelisted assemblies.
@@ -153,6 +160,16 @@ public class ScriptManager : IDisposable
             _pendingResync = false;
         }
 
+        // Update the KeyUp state.
+        foreach (var key in _prevKeyState.Keys)
+        {
+            var newState = ScriptServices.KeyState[key];
+            var keyUp = !newState && _prevKeyState[key];
+            _prevKeyState[key] = newState;
+
+            if (keyUp)
+                CallEvent(GlobalEvents.OnKeyUp, new Dictionary<string, object> {{"key", key}});
+        }
 
         CallEvent(GlobalEvents.OnUpdate);
     }
