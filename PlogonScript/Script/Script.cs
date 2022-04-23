@@ -145,6 +145,7 @@ public class Script : IDisposable
 
         // misc
         engine.SetValue("UIHelpers", TypeReference.CreateTypeReference(engine, typeof(Bindings.UIHelpers)));
+        engine.SetValue("Sound", TypeReference.CreateTypeReference(engine, typeof(Bindings.Sound)));
     }
 
     public void Unload(bool disableAutoload)
