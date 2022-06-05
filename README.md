@@ -1,5 +1,7 @@
 # PlogonScript
 
+**Currently on hold due to Square Enix shenanigans. Will be re-visiting after 2022-06-18.**
+
 Ever wanted to solve simple problems you have with the game without making your own plugin?
 
 PlogonScript is for you! This little doodad will load single-file JavaScript scripts so
